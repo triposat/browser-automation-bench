@@ -1,0 +1,17 @@
+
+browser-automation-bench   Google Chrome for Testing 153.0.8010.47   node v25.9.0   rtt=20ms   repeats=3
+darwin/arm64  8 cpus  16 GB   browser memory metric: phys_footprint
+
+TOOL       PROTOCOL             IMPORT    CLIENT  BROWSER  PROCS     WALK  MSGS   EVAL  MSGS  ITEMS
+--------------------------------------------------------------------------------------------------
+Playwright CDP                 76.4 MB    147 MB   528 MB     10  1137 ms    43  56 ms     2     20
+Puppeteer  CDP                 15.4 MB   89.4 MB   396 MB     10  6233 ms   318  25 ms     1     20
+Selenium   WebDriver Classic    9.8 MB   76.5 MB   560 MB      9  2202 ms    81  27 ms     1     20
+raw client WebDriver BiDi            -   58.4 MB   556 MB     10   968 ms    41  28 ms     1     20
+
+IMPORT   client RSS added by loading the library, before any browser exists
+CLIENT   client RSS with one browser connected and the page extracted
+BROWSER  phys_footprint summed across the browser process tree, shared binary image excluded
+WALK     20 cards read one locator at a time, and the protocol messages it cost
+EVAL     the same 20 cards read in a single in-page evaluation
+

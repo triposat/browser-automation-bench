@@ -1,0 +1,83 @@
+{
+  "chrome": "Google Chrome for Testing 153.0.8010.47",
+  "node": "v25.9.0",
+  "rtt": 0,
+  "repeats": 5,
+  "results": [
+    {
+      "label": "Playwright",
+      "protocol": "CDP",
+      "importCost": 76.4,
+      "clientRssMb": 151.5,
+      "privateMb": 428,
+      "procs": 9,
+      "cpuSeconds": 1.33,
+      "walkMs": 74,
+      "walkMsgs": 46,
+      "singleMs": 2,
+      "singleMsgs": 2,
+      "kbUp": 488.2,
+      "items": 20
+    },
+    {
+      "label": "Puppeteer",
+      "protocol": "CDP",
+      "importCost": 15.3,
+      "clientRssMb": 86.9,
+      "privateMb": 524,
+      "procs": 9,
+      "cpuSeconds": 1.32,
+      "walkMs": 77,
+      "walkMsgs": 320,
+      "singleMs": 1,
+      "singleMsgs": 1,
+      "kbUp": 95.8,
+      "items": 20
+    },
+    {
+      "label": "Selenium",
+      "protocol": "WebDriver Classic",
+      "importCost": 9.9,
+      "clientRssMb": 81.1,
+      "privateMb": 445,
+      "procs": 8,
+      "cpuSeconds": 1.47,
+      "walkMs": 162,
+      "walkMsgs": 81,
+      "singleMs": 2,
+      "singleMsgs": 1,
+      "kbUp": 99.1,
+      "items": 20
+    },
+    {
+      "label": "raw client",
+      "protocol": "WebDriver BiDi",
+      "importCost": null,
+      "clientRssMb": 77.9,
+      "privateMb": 460,
+      "procs": 9,
+      "cpuSeconds": 1.44,
+      "walkMs": 47,
+      "walkMsgs": 41,
+      "singleMs": 2,
+      "singleMsgs": 1,
+      "kbUp": 10,
+      "items": 20
+    },
+    {
+      "label": "Lightpanda",
+      "protocol": "CDP (partial)",
+      "importCost": 15.3,
+      "clientRssMb": 86.9,
+      "privateMb": 10,
+      "procs": 1,
+      "cpuSeconds": 0.06,
+      "walkMs": 48,
+      "walkMsgs": 318,
+      "singleMs": 0,
+      "singleMsgs": 1,
+      "kbUp": 81.1,
+      "items": 20
+    }
+  ]
+}

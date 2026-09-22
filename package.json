@@ -1,0 +1,14 @@
+{
+  "name": "browser-automation-bench",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "playwright-core": "1.63.0",
+    "puppeteer-core": "25.11.0",
+    "selenium-webdriver": "4.49.0",
+    "ws": "8.21.3"
+  },
+  "description": "Reproducible benchmark harness for browser automation clients.",
+  "license": "MIT"
+}

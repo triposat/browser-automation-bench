@@ -1,0 +1,6 @@
+# Chrome, chromedriver and Lightpanda install here via @puppeteer/browsers
+.browsers/
+# npm install rebuilds this
+node_modules/
+# throwaway Chrome user-data-dirs created by lib/chrome.js
+.run/
