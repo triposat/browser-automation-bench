@@ -215,22 +215,22 @@ Browser memory is the least stable number this harness produces, so `out-bench-3
 three independent five-repeat runs rather than one:
 
 ```text
-TOOL         BROWSER MB across 4 runs         min-max
-Playwright   427, 425, 423, 434               423-434
-Puppeteer    508, 416, 511, 423               416-511
-Selenium     437, 436, 435, 510               435-510
-raw BiDi     443, 446, 532, 448               443-532
-Lightpanda   10, 10, 10, 10                   9.6-10.0
+TOOL         BROWSER MB across 5 runs         min-max
+Playwright   427, 425, 423, 434, 428          423-434
+Puppeteer    508, 416, 511, 423, 524          416-524
+Selenium     437, 436, 435, 510, 445          435-510
+raw BiDi     443, 446, 532, 448, 460          443-532
+Lightpanda   10, 10, 10, 10, 10               9.6-10.0
 ```
 
-Every Chromium client except Playwright landed about 90 MB above its usual figure at least once,
-and which client does it changes between runs. After three runs it looked like Playwright and
-Selenium were stable and Puppeteer and BiDi were not, which was over-fitting to three samples:
-the fourth run put Selenium at 510 MB. Nothing here identifies the cause and no claim is made
-about it.
+Playwright stayed inside an 11 MB band across all five runs. Every other Chromium client landed
+about 90 MB above its usual figure at least once, and which one does it changes between runs.
+After three runs it looked like Playwright and Selenium were both stable, which was over-fitting
+to three samples: the fourth run put Selenium at 510 MB. Nothing here identifies the cause and no
+claim is made about it.
 
 An earlier draft of the guide said the four Chromium rows land between 430 MB and 446 MB. That
-was one run's medians presented as the general result, and it is not reproducible: four runs
+was one run's medians presented as the general result, and it is not reproducible: five runs
 span 416 MB to 532 MB. The guide now states the wider range, because the variance inside a single
 client is larger than the gap between clients, which makes the point about client choice more
 strongly than the tight number did.
@@ -366,6 +366,25 @@ What it cannot reach is measured by `tls-probe.mjs`: JA4 and HTTP/2 came back by
 headless and headful, and moved only when the engine changed. Those are set by the network
 stack below the JavaScript VM, so no in-page hook alters them, and `ja3-stability.mjs` shows
 JA3 cannot be used to check your work either.
+
+## make-latency-table.mjs — why the latency table is generated, not written
+
+`latency-table.txt` used to be assembled by hand from the three RTT runs, and its 0 ms column did
+not match `out-rtt0.txt`: it showed Playwright at 76 ms where the run file says 64, Puppeteer at
+72 where the file says 86, Selenium at 177 against 166, and the BiDi client at 54 against 52. The
+20 ms and 60 ms columns were correct. Nobody could have reproduced that 0 ms column from anything
+shipped here.
+
+It is now derived from the three run files, so the figure and the evidence cannot drift apart:
+
+```bash
+node make-latency-table.mjs
+```
+
+One thing to know when reading the two figures together. The walk times in `fig-1` come from a
+later `bench.mjs` run than the `RTT 0ms` column here, so they differ by a few milliseconds on the
+same measurement. That is the run-to-run variance this README documents, not a contradiction, and
+the ladder's own 0 ms column is the one to compare against its 20 ms and 60 ms neighbours.
 
 ## bidi-load-cost.mjs — the dash in the matrix
 
