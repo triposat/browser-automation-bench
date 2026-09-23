@@ -102,10 +102,18 @@ browser memory, process count, CPU, and wall time at each level.
 node concurrency-sweep.mjs
 ```
 
-Both curves are linear. A context costs about 213 MB after a 397 MB first; a separate
-browser costs about 400 MB flat. The formula `397 + 213 * (n - 1)` predicted the measured
-16-context figure within 2%. Separate browsers finish faster because they do not contend
-on one browser process, and cost roughly 1.75x the memory and 2.6x the CPU to do it.
+Both curves are linear. A context costs about 213 MB after a 431 MB first; a separate
+browser costs about 410 MB each. The formula `431 + 213 * (n - 1)` predicts the measured
+16-context figure within 1%. Separate browsers finish faster because they do not contend
+on one browser process, and cost roughly 1.8x the memory and 2.6x the CPU to do it.
+
+`out-concurrency.txt` holds the run these figures come from, taken from a clean clone after
+the `lib/serve.js` fix. The guide previously quoted a 397 MB first context and a 2,134 ms
+16-way wall time from an earlier run whose fixture is not in this repo, so those numbers were
+not reproducible from it. Memory, process counts and CPU came back close on the new run
+(3,650 MB against 3,645, 160 processes against 160, 11.13 s against 11.13). Wall time did
+not, and is the figure to trust least here: it moved from 2,134 ms to 1,208 ms and depends
+on what else the machine is doing.
 
 ## isolation-probe.mjs and canvas-verify.mjs
 

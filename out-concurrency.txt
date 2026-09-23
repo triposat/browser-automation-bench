@@ -1,0 +1,14 @@
+concurrency-sweep.mjs, clean clone of the published repo, after the lib/serve.js fix.
+The guide's concurrency table came from an earlier run whose fixture no longer exists;
+this is the first run reproducible from the repo as published.
+
+contexts n=1 -> 431 MB, 9 procs, 1.53s, 76ms
+browsers n=1 -> 431 MB, 9 procs, 1.58s, 60ms
+contexts n=2 -> 703 MB, 12 procs, 2.08s, 226ms
+browsers n=2 -> 948 MB, 19 procs, 2.9s, 54ms
+contexts n=4 -> 1184 MB, 18 procs, 3.22s, 604ms
+browsers n=4 -> 1872 MB, 38 procs, 5.95s, 186ms
+contexts n=8 -> 1979 MB, 30 procs, 5.72s, 1211ms
+browsers n=8 -> 3279 MB, 80 procs, 12.76s, 400ms
+contexts n=16 -> 3650 MB, 54 procs, 11.13s, 2828ms
+browsers n=16 -> 6556 MB, 160 procs, 28.31s, 1208ms
