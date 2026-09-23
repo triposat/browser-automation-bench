@@ -1,0 +1,20 @@
+=== run 2 ===
+baseline client RSS 168.6 MB, node v25.9.0
+    1       170.3 MB     1.7 MB   0
+    2       170.8 MB     2.2 MB   0
+    3       171.2 MB     2.6 MB   0
+    4       159.2 MB    -9.5 MB   0
+sessions held: 4, refused at 5
+  plain GET          status 403   X-Error-Reason: {"statusCode":403,"message":"You've reached max parallel cloud launche
+  WebSocket upgrade  status 503   X-Error-Reason: (none)
+  same code on both paths: false
+=== run 3 ===
+baseline client RSS 171.5 MB, node v25.9.0
+    1       173.4 MB     1.9 MB   0
+    2       173.8 MB     2.4 MB   0
+    3       161.8 MB    -9.7 MB   0
+    4         162 MB    -9.5 MB   0
+sessions held: 4, refused at 5
+  plain GET          status 403   X-Error-Reason: {"statusCode":403,"message":"You've reached max parallel cloud launche
+  WebSocket upgrade  status 503   X-Error-Reason: (none)
+  same code on both paths: false

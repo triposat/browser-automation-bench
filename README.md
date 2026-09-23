@@ -448,6 +448,50 @@ and `/browser/custom` default them off, so a scripted fleet inherits one canvas 
 profile is patched. This is worth knowing before the fleet is built rather than after it is
 blocked.
 
+## gl-session-cost.mjs — what an open session costs, and how a refusal looks
+
+Two claims in the guide had nothing behind them. The first was that four open sessions cost
+97.9 MB of client RSS; no script measured client memory. The second was that the WebSocket
+upgrade is refused with a `400`; `gl-session-release.mjs` only ever probed the plain GET path,
+which answers `403`, so no `400` was ever observed. This script opens sessions until the
+account ceiling refuses one, samples client RSS after each, and then asks for one more over
+both paths so the two codes can be compared side by side. Run it with
+`GL_TOKEN=... node --expose-gc gl-session-cost.mjs` (the GC flag makes the RSS samples
+comparable).
+
+Three runs:
+
+```text
+RUN   BASELINE   1 SESSION   2         3         4         DELTA AT 4
+1     170.0 MB   172.3 MB    172.5     172.8     173.0     +3.0 MB
+2     168.6 MB   170.3 MB    170.8     171.2     159.2      -9.5 MB
+3     171.5 MB   173.4 MB    173.8     161.8     162.0      -9.5 MB
+```
+
+Holding four sessions costs no measurable client memory. The largest delta was 3.0 MB and two
+runs finished *below* their own baseline, because a garbage collection during the run freed
+more than the sessions ever held. No local browser process starts at any point. The guide's
+97.9 MB was wrong in the direction that understated the case: the whole point of moving the
+browser off the machine is that the client keeps almost nothing, and 97.9 MB suggested
+otherwise.
+
+The refusal differs by path, and did so on all three runs:
+
+```text
+plain GET          403   X-Error-Reason: {"statusCode":403,"message":"You've reached max parallel cloud launche…
+WebSocket upgrade  503   no X-Error-Reason, no body
+```
+
+So the guide's `400` was wrong, and the code a retry loop actually sees depends on how it
+connects. A client using `connectOverCDP` gets the `503` with nothing to parse, which is why
+the preflight GET is worth doing before a connect rather than after a failure.
+
+This also revises a note in the section below. `gl-session-release.mjs` recorded one `503` on
+connect in six sessions and treated it as a transient, on the grounds that one observation is
+not a finding. That was the right call at the time, but `503` is now the observed refusal code
+on the WebSocket path across three runs, so that session was most likely the ceiling rather
+than noise.
+
 ## gl-remote-latency.mjs — what the endpoint actually costs in latency
 
 An earlier draft of the guide quoted four remote-latency figures with no probe behind them. This
