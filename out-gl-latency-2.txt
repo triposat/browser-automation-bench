@@ -1,0 +1,20 @@
+profile 6ab38001  target https://books.toscrape.com/  repeats 4
+
+run 1: connect 5637.4 ms, rtt 247.1 ms, nav 1245.9 ms, walk 10135.1 ms, eval 495.7 ms, items 20/20
+run 2: connect 1517.7 ms, rtt 236.4 ms, nav 455.1 ms, walk 9660.3 ms, eval 479.2 ms, items 20/20
+run 3: connect 1538 ms, rtt 237 ms, nav 447.9 ms, walk 10109.9 ms, eval 483.5 ms, items 20/20
+run 4: connect 1556.3 ms, rtt 233.2 ms, nav 440.7 ms, walk 9961.5 ms, eval 588.7 ms, items 20/20
+
+4 complete runs of 4
+
+METRIC                       MEDIAN      MIN-MAX
+------------------------------------------------
+CDP round trip                  237 ms      233-247
+connect                        1547 ms    1518-5637
+navigate (domcontentloaded)     452 ms     441-1246
+walk, 40 locator reads        10036 ms   9660-10135
+same read, one evaluation       490 ms      479-589
+
+first connect 5637 ms against a median 1538 ms for the 3 after it
+collapsing the walk: 10036 ms to 490 ms, a factor of 20
+cleaned up profile

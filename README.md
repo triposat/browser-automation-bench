@@ -448,6 +448,43 @@ and `/browser/custom` default them off, so a scripted fleet inherits one canvas 
 profile is patched. This is worth knowing before the fleet is built rather than after it is
 blocked.
 
+## gl-remote-latency.mjs — what the endpoint actually costs in latency
+
+An earlier draft of the guide quoted four remote-latency figures with no probe behind them. This
+script is that probe. It creates one profile, connects with `playwright-core` over
+`connectOverCDP`, and on each repeat measures the CDP round trip (`Browser.getVersion`, eleven
+samples, median), the connect, the navigation, a 40-read locator walk and the same read collapsed
+into one evaluation. The walk mirrors `bench.mjs`: 20 cards, two fields each. Run it with
+`GL_TOKEN=... node gl-remote-latency.mjs`.
+
+Nine runs across two independent sessions, on books.toscrape.com:
+
+```text
+METRIC                       MEDIAN      MIN-MAX      n
+CDP round trip                236 ms      227-248      9
+walk, 40 locator reads       9941 ms   9283-10135      9
+same read, one evaluation     484 ms      466-589      9
+first connect                5509 ms    5380-5637      2
+reconnect                    1538 ms    1517-1803      7
+```
+
+The walk costs 249 ms per read against a 236 ms round trip, so each locator read is one round
+trip and the remote walk is the round-trip thesis restated at distance. Collapsing it into one
+evaluation is a factor of 21.
+
+The four figures the guide used to carry were wrong, and three of them were wrong in the
+direction that flatters nobody: 270 ms against a measured 227-248, an 11,799 ms walk against
+9,283-10,135, and a 5,804 ms cold connect against 5,380-5,637. The fourth, 616 ms, was presented
+as the counterpart to the cold connect and understates it: a reconnect measured 1,517 to 1,803 ms.
+Only the collapsed read, quoted at 527 ms, fell inside its measured band. The guide now states
+the medians above.
+
+Two caveats. The local 64 ms the guide compares against comes from `latency-table.txt` on the
+local fixture, while the remote walk runs on books.toscrape.com, so the pages differ even though
+the read shape does not; the comparison is of round-trip cost, which is what dominates both.
+And every number here is one machine's distance to one endpoint on one day, not a property of the
+product.
+
 ## gl-session-release.mjs — does closing the client free the parallel slot?
 
 This probe exists because an earlier draft asserted that closing the client did not reliably
