@@ -13,7 +13,8 @@ that a fresh checkout reproduces the published numbers rather than whatever ship
 
 ```bash
 npm install
-npx @puppeteer/browsers install chrome@153.0.8010.47 chromedriver@153.0.8010.47 --path ./.browsers
+npx @puppeteer/browsers install chrome@153.0.8010.47 --path ./.browsers
+npx @puppeteer/browsers install chromedriver@153.0.8010.47 --path ./.browsers
 ```
 
 Every script imports from `lib/`, which holds the Chrome launcher, the `phys_footprint` and CPU
