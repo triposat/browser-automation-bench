@@ -124,7 +124,15 @@ node edge/closed-shadow.mjs  # page script vs Playwright locator vs CDP
 ```
 
 One evaluation at `domcontentloaded` finds 5 of 35. Waiting gets 10, clicking 15, walking open
-shadow roots 20. Each iframe needs its own evaluation. The closed shadow root's 5 are invisible
+shadow roots 20. Each iframe needs its own evaluation, and the two iframes hold 5 each, so page
+script doing everything it can reaches 30 of 35: `reachableWalkingOpenShadowInEveryFrame`.
+
+The probe used to print only `reachableAcrossAllFrames`, which is 25, because it enumerated each
+frame with a plain `querySelectorAll` and so missed the 5 records behind the main frame's open
+shadow host. That was the probe under-reporting, not a different result: it now counts each frame
+both ways and prints 25 and 30 side by side. The guide states 30.
+
+The closed shadow root's 5 are invisible
 to page script (`shadowRoot` is `null`) and to a Playwright locator, but `DOM.getDocument` with
 `pierce: true` returns all five over CDP, so the protocol is strictly more capable than the
 page script the optimization runs in.
