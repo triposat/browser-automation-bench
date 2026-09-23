@@ -23,7 +23,7 @@ readers, the fixture server, and the counting WebSocket proxy. The probes do not
 Lightpanda is optional. Install it and the fifth row appears; skip it and the row is omitted:
 
 ```bash
-curl -fsSL https://pkg.lightpanda.io/install.sh | bash
+curl -fsSL https://pkg.lightpanda.io/install.sh | bash   # ships nightly; there is no pinned release to match
 export LIGHTPANDA_PATH=~/.local/bin/lightpanda
 ```
 
@@ -59,6 +59,18 @@ the first.
 30 ms each way, 10 ms jitter, and a 1 MB/s ceiling agreed with this harness within 2% at 60 ms.
 Jitter did not change the ranking, and the bandwidth cap cost Playwright about 7% and Puppeteer
 nothing, which is what the 493 KB against 98 KB upload difference predicts.
+
+## A note on the Lightpanda row
+
+Every other build in this harness is pinned to a patch version. Lightpanda is not, and cannot be:
+its installer defaults to `VERSION="${LIGHTPANDA_VERSION:-nightly}"`, and the binary self-reports a
+string like `1.0.0-nightly.9588+4d1d5f129` while the project's real releases are at 0.4.x. Two people
+running this on the same day can get different builds, and did: a verification run on another machine
+reported `1.0.0-nightly.9684+11e1505cd` against this one's `...9588+4d1d5f129`.
+
+The measured numbers held across both, which is the useful part. But the guide now labels the row
+`Lightpanda nightly` rather than a version number, because a version number here would imply a
+reproducibility this one row does not have.
 
 ## mcp-token-cost.mjs
 

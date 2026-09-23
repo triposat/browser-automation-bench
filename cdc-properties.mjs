@@ -18,6 +18,7 @@ let viaDriver = { error: 'not run' };
 try {
   const { Builder } = await import('selenium-webdriver');
   const chrome = await import('selenium-webdriver/chrome.js');
+  fs.mkdirSync('./.run', { recursive: true });   // gitignored, so absent on a clean clone
   const dir = fs.mkdtempSync('./.run/cdc-');
   const o = new chrome.Options();
   o.setChromeBinaryPath(CHROME);
