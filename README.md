@@ -211,8 +211,9 @@ both. At 20 cards this looks like a modest constant; at 600 it is 1,832 against 
 
 ## Between-run variance, and why the guide now states a range
 
-Browser memory is the least stable number this harness produces, so `out-bench-3runs.txt` holds
-three independent five-repeat runs rather than one:
+Browser memory is the least stable number this harness produces. `out-bench-3runs.txt` holds
+three independent five-repeat runs, and two more come from the captures taken for the guide's
+figures:
 
 ```text
 TOOL         BROWSER MB across 5 runs         min-max
@@ -229,11 +230,26 @@ After three runs it looked like Playwright and Selenium were both stable, which 
 to three samples: the fourth run put Selenium at 510 MB. Nothing here identifies the cause and no
 claim is made about it.
 
+Four of the six client pairs overlap outright. The two that do not, Playwright against Selenium
+and Playwright against BiDi, miss by 1 MB and 9 MB against bands up to 108 wide. An earlier
+version of this file said the variance inside a single client is larger than the gap between
+clients: true of Puppeteer, false of Playwright, whose 11 MB band sits well inside the 81 MB
+spread between client medians. Missing by 1 MB is an edge artifact, not a separation.
+
+Walk and CPU are steadier, and there the ranking does survive. Across the same five runs walk
+moved 9 to 17 percent and CPU 5 to 12, but the clients do not overlap at all:
+
+```text
+TOOL         WALK ms across 5 runs        min-max    CPU s                              spread
+raw BiDi     55, 53, 52, 51, 47            47-55     1.50, 1.40, 1.41, 1.43, 1.44        7%
+Playwright   64, 73, 70, 72, 74            64-74     1.38, 1.42, 1.45, 1.32, 1.33       10%
+Puppeteer    82, 88, 80, 78, 77            77-88     1.38, 1.33, 1.38, 1.31, 1.32        5%
+Selenium    170, 170, 172, 158, 162      158-172     1.65, 1.58, 1.60, 1.47, 1.47       12%
+```
+
 An earlier draft of the guide said the four Chromium rows land between 430 MB and 446 MB. That
 was one run's medians presented as the general result, and it is not reproducible: five runs
-span 416 MB to 532 MB. The guide now states the wider range, because the variance inside a single
-client is larger than the gap between clients, which makes the point about client choice more
-strongly than the tight number did.
+span 416 MB to 532 MB.
 
 ## gl-useragent-currency.mjs — is the profile's browser version current?
 
