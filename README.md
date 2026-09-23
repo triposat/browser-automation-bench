@@ -8,12 +8,12 @@ browser memory, process count, CPU, and protocol round trips for an identical ex
 
 ## Setup
 
-`package.json` pins the client versions the guide reports, so install from it rather than
-re-resolving them:
+`package.json` pins the client versions the guide reports and the browser is pinned here, so
+that a fresh checkout reproduces the published numbers rather than whatever shipped this week:
 
 ```bash
 npm install
-npx @puppeteer/browsers install chrome@stable chromedriver@stable --path ./.browsers
+npx @puppeteer/browsers install chrome@153.0.8010.47 chromedriver@153.0.8010.47 --path ./.browsers
 ```
 
 Every script imports from `lib/`, which holds the Chrome launcher, the `phys_footprint` and CPU
