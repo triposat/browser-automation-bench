@@ -235,6 +235,32 @@ span 416 MB to 532 MB. The guide now states the wider range, because the varianc
 client is larger than the gap between clients, which makes the point about client choice more
 strongly than the tight number did.
 
+## gl-exit-ip.mjs — what the default exit actually is
+
+The guide says three API-created profiles varied their exit IP. That is measured, but on its own
+it invites the wrong conclusion, so this reads the exit of profiles with no proxy attached:
+
+```bash
+GL_TOKEN=... node gl-exit-ip.mjs
+```
+
+```text
+run 1   <exit A>   FI   AS24940 Hetzner Online GmbH
+        <exit B>  DE   AS24940 Hetzner Online GmbH
+run 2   <exit C>  DE   AS24940 Hetzner Online GmbH
+        <exit D>    DE   AS24940 Hetzner Online GmbH
+        <exit E>   DE   AS24940 Hetzner Online GmbH
+```
+
+Five sessions, five distinct IPs, every one inside the cloud host's own datacenter range. The
+variation is real and the classification is datacenter, which is the reason the proxy attachment
+exists rather than an argument against it. Measuring a mobile or residential exit needs traffic
+on the account, and the dev token used here has zero bytes on all four classes, so that half is
+described from `src/gologin-api.js` rather than measured.
+
+One session in six returned a `503` on connect and the next run was clean, so it is recorded here
+and not in the guide. One observation is not a finding.
+
 ## creepjs-checks.mjs — the same detection probe on local and remote
 
 Implemented from `creepjs/src/headless/index.ts`, read directly rather than from any description
