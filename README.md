@@ -178,6 +178,14 @@ resource, at roughly 200 MB and three processes per context.
 
 ### The measurement trap, and isolating it
 
+```bash
+# one arm per run; without --arm no intervention is applied and the result is empty
+for arm in idle-only gc-only gc-plus-idle browser-gc; do
+  node --expose-gc leak/gc-isolate.mjs --arm=$arm
+done
+ITER=200 node --expose-gc leak/gc-check.mjs   # the client side
+```
+
 `leak/gc-isolate.mjs` runs 200 iterations then applies one intervention per arm, because a
 drop after "forced GC plus a pause" has two possible causes:
 
