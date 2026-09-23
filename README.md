@@ -235,6 +235,36 @@ span 416 MB to 532 MB. The guide now states the wider range, because the varianc
 client is larger than the gap between clients, which makes the point about client choice more
 strongly than the tight number did.
 
+## gl-useragent-currency.mjs — is the profile's browser version current?
+
+A profile that advertises a browser two majors behind the fleet actually running is a mismatch
+anyone can read, so the guide's claim about it needs a probe rather than a one-off check:
+
+```bash
+GL_TOKEN=... node gl-useragent-currency.mjs
+```
+
+```text
+profile  advertises  ua
+6ab35d   151         Gecko) Chrome/151.0.7922.173 Safari/537.36
+6ab35d   151         Gecko) Chrome/151.0.7922.173 Safari/537.36
+6ab35d   151         Gecko) Chrome/151.0.7922.173 Safari/537.36
+
+local Chrome       : Google Chrome for Testing 153.0.8010.47  (major 153)
+Every profile is 2 majors behind the browser this harness drives.
+```
+
+`PATCH /browser/update_ua_to_new_browser_v`, exposed by the SDK as
+`updateUserAgentToLatestBrowser()` and documented at
+`/docs/api-reference/profile/get-latest-useragent`, moves them forward. Creation and currency
+are separate steps, the same shape as canvas mode and the fingerprint refresh, which is why the
+guide describes provisioning as a short sequence rather than a single call.
+
+The first version of this probe parsed the local version with `/Chrome\/(\d+)/`, which does not
+match `Google Chrome for Testing 153.0.8010.47`. The local major came back `undefined` and the
+verdict line printed the opposite of the data sitting above it. Worth recording: the table was
+right and the conclusion was wrong, which is the failure mode a summary line invites.
+
 ## gl-exit-ip.mjs — what the default exit actually is
 
 The guide says three API-created profiles varied their exit IP. That is measured, but on its own
