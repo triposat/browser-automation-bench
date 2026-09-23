@@ -4,3 +4,6 @@
 node_modules/
 # throwaway Chrome user-data-dirs created by lib/chrome.js
 .run/
+# never commit credentials; every probe reads GL_TOKEN from the environment
+.env
+.env.*
