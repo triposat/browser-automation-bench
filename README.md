@@ -265,8 +265,8 @@ version of this file said the variance inside a single client is larger than the
 clients: true of Puppeteer, false of Playwright, whose 11 MB band sits well inside the 81 MB
 spread between client medians. Missing by 1 MB is an edge artifact, not a separation.
 
-Walk and CPU are steadier, and there the ranking does survive. Across the same five runs walk
-moved 9 to 17 percent and CPU 5 to 12, but the clients do not overlap at all:
+Walk and CPU are steadier than memory, but only one of them ranks anything. Across the same
+five runs walk moved 9 to 17 percent and CPU 5 to 12:
 
 ```text
 TOOL         WALK ms across 5 runs        min-max    CPU s                              spread
@@ -275,6 +275,11 @@ Playwright   64, 73, 70, 72, 74            64-74     1.38, 1.42, 1.45, 1.32, 1.3
 Puppeteer    82, 88, 80, 78, 77            77-88     1.38, 1.33, 1.38, 1.31, 1.32        5%
 Selenium    170, 170, 172, 158, 162      158-172     1.65, 1.58, 1.60, 1.47, 1.47       12%
 ```
+
+Walk separates the clients cleanly: no two bands overlap, and the nearest pair is 9 ms apart.
+CPU does not. Three of the six pairs overlap outright, and the two closest misses, raw BiDi
+against Puppeteer and Playwright against Selenium, are 0.02 s each. An earlier version of this
+section said the clients "do not overlap at all", which is true of walk and false of CPU.
 
 An earlier draft of the guide said the four Chromium rows land between 430 MB and 446 MB. That
 was one run's medians presented as the general result, and it is not reproducible: five runs
