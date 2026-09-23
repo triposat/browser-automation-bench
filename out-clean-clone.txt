@@ -1,0 +1,10 @@
+A single REPEATS=1 run from a clean clone of the published repo, on a machine that was
+busy with other work at the time, so the CPU column is inflated and is not evidence of
+anything. It is kept for one column only: IMPORT. Selenium reads 6.8 MB here, as it has
+on every clean clone measured, against the 10 MB in out-bench-3runs.txt.
+
+TOOL       PROTOCOL           IMPORT    CLIENT  BROWSER PROCS     CPU     WALK  MSGS   EVAL  ITEMS
+Playwright CDP               76.9 MB  122.2 MB   566 MB     9  1.85 s   105 ms    43   3 ms     20
+Puppeteer  CDP               11.4 MB   88.4 MB   422 MB     9  1.51 s    90 ms   320   1 ms     20
+Selenium   WebDriver Classic  6.8 MB   72.9 MB   451 MB     8  1.77 s   336 ms    81   2 ms     20
+raw client WebDriver BiDi          -   65.8 MB   463 MB     9  1.55 s    55 ms    41   1 ms     20

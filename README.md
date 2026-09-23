@@ -527,6 +527,20 @@ not a finding. That was the right call at the time, but `503` is now the observe
 on the WebSocket path across three runs, so that session was most likely the ceiling rather
 than noise.
 
+## out-clean-clone.txt — why the guide says 7 MB and this repo's main run says 10
+
+`out-bench-3runs.txt` records Selenium's import at 10 MB. Every clean clone of the published
+repo measured since has read 6.8 MB, on three independent occasions: a reader verifying the
+guide, and two runs of my own from fresh checkouts. Playwright's import reaches 80.7 MB in the
+three-run file. So the honest span is about 7 to 81 MB, and the guide states 7 to 80.
+
+`out-clean-clone.txt` is the evidence for the low end. It is one `REPEATS=1` run on a busy
+machine, so its CPU and browser columns are inflated and prove nothing; it is kept for the
+IMPORT column alone. What changed between the shipped run and the clean clones is not
+established here. Import cost is the one figure in the harness measured before any browser
+exists, so it is the most sensitive to the state of `node_modules` and the least interesting
+to chase.
+
 ## gl-remote-latency.mjs — what the endpoint actually costs in latency
 
 An earlier draft of the guide quoted four remote-latency figures with no probe behind them. This
