@@ -459,7 +459,7 @@ both paths so the two codes can be compared side by side. Run it with
 `GL_TOKEN=... node --expose-gc gl-session-cost.mjs` (the GC flag makes the RSS samples
 comparable).
 
-Three runs:
+Three runs, kept in `out-gl-session-cost.txt` and `out-gl-session-cost-2.txt`:
 
 ```text
 RUN   BASELINE   1 SESSION   2         3         4         DELTA AT 4
@@ -501,7 +501,8 @@ samples, median), the connect, the navigation, a 40-read locator walk and the sa
 into one evaluation. The walk mirrors `bench.mjs`: 20 cards, two fields each. Run it with
 `GL_TOKEN=... node gl-remote-latency.mjs`.
 
-Nine runs across two independent sessions, on books.toscrape.com:
+Nine runs across two independent sessions, on books.toscrape.com, kept in `out-gl-latency.txt`
+and `out-gl-latency-2.txt`:
 
 ```text
 METRIC                       MEDIAN      MIN-MAX      n
