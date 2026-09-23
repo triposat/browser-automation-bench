@@ -322,6 +322,34 @@ The first is a colour-scheme preference that millions of real users share. The t
 worth setting: `screen` and `availScreen` are equal, where a desktop with a dock or taskbar
 differs by its height.
 
+## cdc-properties.mjs — the chromedriver tell, counted
+
+The guide says chromedriver injects seven `cdc_` properties onto `window` where a plain CDP
+connect leaves none, and that the string is stable across versions. None of that had a script
+behind it until now:
+
+```bash
+node cdc-properties.mjs
+```
+
+```text
+via chromedriver : 7 properties
+    cdc_adoQpoasnfa76pfcZLmcfl_Array     cdc_adoQpoasnfa76pfcZLmcfl_Symbol
+    cdc_adoQpoasnfa76pfcZLmcfl_Object    cdc_adoQpoasnfa76pfcZLmcfl_JSON
+    cdc_adoQpoasnfa76pfcZLmcfl_Promise   cdc_adoQpoasnfa76pfcZLmcfl_Window
+    cdc_adoQpoasnfa76pfcZLmcfl_Proxy
+via plain CDP    : 0 properties
+```
+
+The property names are the shimmed globals, which is why a page can find them by prefix without
+knowing the suffix. The suffix itself is a build constant, not a per-session value.
+
+Checked against every chromedriver on the reference machine, `strings` finds the identical
+`cdc_adoQpoasnfa76pfcZLmcfl` in 131.0.6778.264, 133.0.6943.141, 134.0.6998.88, 134.0.6998.165,
+135.0.7049.95, 138.0.7204.94 and 153.0.8010.47. An earlier draft of the guide said "120, 131 and
+153"; 120 was never present here and was never checked, so the guide now states the range that
+was.
+
 ## runtime-enable-tell.mjs — which messages are themselves a tell
 
 Found by reading patchright's source rather than by measuring: it names avoiding `Runtime.enable`
