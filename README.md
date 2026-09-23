@@ -646,17 +646,23 @@ node lp-vs-chrome.mjs
 
 ```text
 react.dev    chrome  1846 nodes   lightpanda  1847   ratio 1.00
-angular.dev  chrome   485 nodes   lightpanda   485   ratio 1.00
+angular.dev  chrome   485 nodes   lightpanda   385   ratio 0.79
 vuejs.org    chrome   619 nodes   lightpanda   754   ratio 1.22
 ```
 
-Two of three match Chrome node for node. vuejs.org does not, and Lightpanda returns more nodes
-rather than fewer, so the divergence is a different DOM and not simply an unfinished one.
+One of three matches Chrome node for node. The other two diverge in opposite directions:
+Lightpanda under-renders angular.dev and over-renders vuejs.org, so the difference is a
+different DOM rather than simply an unfinished one.
 
-A single-sample version of this probe once read angular.dev at 385 against Chrome's 485 and
-would have supported a false claim that Lightpanda under-renders it. Three repeats in one
-session showed the 385 was noise. Anything that would print an unflattering number about a tool
-gets repeated before it gets written down.
+This result changed, and the change is worth recording. An earlier single sample read
+angular.dev at 385 and was dismissed as noise after three repeats in one session returned 485.
+Four consecutive repeats now return 385 with Chrome steady at 485, so 385 is the current stable
+result and the earlier dismissal has expired. Either the page or the engine moved between the
+two sessions and this probe cannot say which.
+
+The rule that produced the original caution still holds, and it is what caught the reversal:
+anything that would print an unflattering number about a tool gets repeated before it is
+written down, and repeated again before it is trusted months later.
 
 ## tls-probe.mjs and ja3-stability.mjs — the layer below the browser
 
