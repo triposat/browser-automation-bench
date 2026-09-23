@@ -235,6 +235,37 @@ span 416 MB to 532 MB. The guide now states the wider range, because the varianc
 client is larger than the gap between clients, which makes the point about client choice more
 strongly than the tight number did.
 
+## creepjs-checks.mjs — the same detection probe on local and remote
+
+Implemented from `creepjs/src/headless/index.ts`, read directly rather than from any description
+of it. CreepJS scores three families and the distinction matters: `headless` is definitive, while
+`likeHeadless` is heuristic and includes checks a real user trips.
+
+```bash
+node creepjs-checks.mjs                              # local headful and headless
+GL_TOKEN=... GL_PROFILE=... node creepjs-checks.mjs  # adds the cloud arm
+```
+
+```text
+                 screen / avail        webdriver  platform   likeHeadless  headless
+local headful    1470x956 / 1470x843   true       MacIntel       0%          50%
+local headless    800x600 /  800x600   true       MacIntel       9%         100%
+GoLogin cloud    1470x956 / 1470x956   false      Win32         27%           0%
+```
+
+The definitive pair is `webDriverIsOn` and `hasHeadlessUA`. Local Chrome fails one headful and
+both headless, because `--headless=new` in Chrome 153 still ships `HeadlessChrome` in the
+User-Agent. The cloud profile fails neither, repeated across four runs.
+
+`webDriverIsOn` is worth reading in the source: it fires when the property is set **and** when it
+is `undefined` on a Blink build new enough to have it, so deleting `navigator.webdriver` is itself
+a tell. Setting it to `false` is the only correct move.
+
+The heuristic hits on the cloud profile are `prefersLightColor`, `noWebShare` and `noTaskbar`.
+The first is a colour-scheme preference that millions of real users share. The third is the one
+worth setting: `screen` and `availScreen` are equal, where a desktop with a dock or taskbar
+differs by its height.
+
 ## runtime-enable-tell.mjs — which messages are themselves a tell
 
 Found by reading patchright's source rather than by measuring: it names avoiding `Runtime.enable`
