@@ -292,11 +292,17 @@ GL_TOKEN=... node gl-exit-ip.mjs
 
 ```text
 run 1   <exit A>   FI   AS24940 Hetzner Online GmbH
-        <exit B>  DE   AS24940 Hetzner Online GmbH
-run 2   <exit C>  DE   AS24940 Hetzner Online GmbH
-        <exit D>    DE   AS24940 Hetzner Online GmbH
+        <exit B>   DE   AS24940 Hetzner Online GmbH
+run 2   <exit C>   DE   AS24940 Hetzner Online GmbH
+        <exit D>   DE   AS24940 Hetzner Online GmbH
         <exit E>   DE   AS24940 Hetzner Online GmbH
 ```
+
+The addresses are masked on purpose. The finding is that five sessions returned five different
+exit IPs in one datacenter AS, and every part of that survives masking: the count, the variation,
+the two countries and the AS. Printing the actual addresses would only help someone add this
+provider's exits to a blocklist, which is not a thing this repo should make easier. Run the probe
+yourself and you will get your own, current values.
 
 Five sessions, five distinct IPs, every one inside the cloud host's own datacenter range. The
 variation is real and the classification is datacenter, which is the reason the proxy attachment
