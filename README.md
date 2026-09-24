@@ -6,6 +6,25 @@ Drives one pinned Chrome build from Playwright, Puppeteer, Selenium Classic, and
 BiDi client, plus Lightpanda as a non-Chromium engine, and reports what each costs: client memory,
 browser memory, process count, CPU, and protocol round trips for an identical extraction task.
 
+## Verify the whole repo
+
+```bash
+./verify-all.sh --list   # what would run, what would be skipped, and why
+./verify-all.sh          # run it: about 6 minutes, or 13 with GL_TOKEN set
+```
+
+It clones the committed HEAD into a temporary directory, installs everything as this README
+says, runs every documented script one at a time, and reports pass, fail or skip for each. It
+does its own setup, so you do not need the steps below to use it. Nothing in your working tree
+can make it pass, which is the point: three bugs in this repo's history, a fixture that was
+never committed, a hardcoded scratch path and a broken import, survived because they worked
+on the author's machine and nowhere else.
+
+The GoLogin probes run only when `GL_TOKEN` is set, Lightpanda only when it can be found, and
+the three scripts that open a visible Chrome window can be skipped with `SKIP_HEADFUL=1`. A skip
+never fails the run. The script's header lists every option. Its last full run passed 39 of 39
+steps and left no profiles behind on the account it used.
+
 ## Setup
 
 `package.json` pins the client versions the guide reports and the browser is pinned here, so
