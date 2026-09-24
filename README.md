@@ -706,6 +706,20 @@ comparing JA3 hashes to verify a stealth setup is reading randomness.
 Chrome's, which no User-Agent override reaches. That sharpens the trade in the guide: it is
 not only that it announces itself in the UA, it does not handshake like Chrome either.
 
+## Cypress — the one row measured on disk
+
+Cypress runs its tests inside the page, so the cost table's other columns do not apply to it.
+The guide gives its install size instead:
+
+```bash
+npm i cypress@16.1.0                        # the binary downloads into the Cypress cache
+du -sh node_modules
+du -sh "$(npx cypress cache path)/16.1.0"
+```
+
+`results/out-cypress-size.txt` holds the output: 30 MB of `node_modules` and a 641 MB binary.
+`verify-all.sh` does not run this, because it downloads the Cypress binary.
+
 ## Environment the published numbers came from
 
 Apple M3, eight cores, 16 GB RAM, macOS 26.6.2, Node v25.9.0, Google Chrome for Testing

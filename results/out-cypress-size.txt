@@ -1,0 +1,12 @@
+Install size of Cypress 16.1.0 on disk, the guide's "30 MB npm, 641 MB binary". Cypress runs
+inside the page, so the table's other columns do not apply to it; this is disk, not memory.
+
+  npm i cypress@16.1.0                        # the binary downloads into the Cypress cache
+  du -sh node_modules node_modules/cypress
+  du -sh "$(npx cypress cache path)/16.1.0"
+
+ 30M	node_modules
+7.3M	node_modules/cypress
+641M	~/Library/Caches/Cypress/16.1.0
+
+In KiB (du -sk): node_modules 30776, binary 655888.
