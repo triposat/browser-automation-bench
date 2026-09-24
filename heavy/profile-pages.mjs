@@ -1,6 +1,6 @@
 // Before picking a heavy target, measure what heavy means: transfer bytes,
 // script bytes, request count, DOM nodes, and whether a repeatable list exists.
-import { launchChrome } from './lib/chrome.js';
+import { launchChrome } from '../lib/chrome.js';
 const { chromium } = await import('playwright-core');
 
 const TARGETS = [
