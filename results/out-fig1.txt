@@ -1,9 +1,8 @@
 The run behind the guide's main cost table, published there as figure 1.
 
-This was never saved as text. It exists as a terminal screenshot taken in a checkout of this
-repo, so every number in the guide's cost table rested on an image that lives with the article
-and not here. What follows is transcribed from that capture, column for column, and checked
-against it after transcription. The shell prompt line is omitted; the command is below.
+Transcribed from that terminal capture, column for column, and checked against it value by
+value afterwards: 45 of 45 match. A transcription is weaker evidence than a saved run, so it is
+labelled as one. The shell prompt line is omitted; the command is below.
 
   LIGHTPANDA_PATH=.browsers/lightpanda/lightpanda REPEATS=5 node bench.mjs
 

@@ -16,14 +16,12 @@ browser memory, process count, CPU, and protocol round trips for an identical ex
 It clones the committed HEAD into a temporary directory, installs everything as this README
 says, runs every documented script one at a time, and reports pass, fail or skip for each. It
 does its own setup, so you do not need the steps below to use it. Nothing in your working tree
-can make it pass, which is the point: three bugs in this repo's history, a fixture that was
-never committed, a hardcoded scratch path and a broken import, survived because they worked
-on the author's machine and nowhere else.
+can make it pass: a file that was never committed, a path that exists on one machine or an
+import that only resolves from one directory fails here the way it would for you.
 
 The GoLogin probes run only when `GL_TOKEN` is set, Lightpanda only when it can be found, and
 the three scripts that open a visible Chrome window can be skipped with `SKIP_HEADFUL=1`. A skip
-never fails the run. The script's header lists every option. Its last full run passed 39 of 39
-steps and left no profiles behind on the account it used.
+never fails the run. The script's header lists every option.
 
 ## Setup
 
@@ -54,7 +52,11 @@ RTT=60 node bench.mjs               # inject 60 ms round-trip latency
 REPEATS=5 RTT=20 node bench.mjs     # more repeats, 20 ms latency
 ```
 
-Results also land in `bench-results.json`.
+Each run also writes `bench-results.json`, which is not tracked. The runs the guide quotes are
+kept in `results/`, one file per probe, named `out-<probe>.txt`. `results/out-fig1.txt` is the
+run behind the guide's main table, transcribed from the terminal capture published as figure 1
+and checked against it value by value. `latency-table.txt` stays at the top level because
+figure 2 shows it being printed there.
 
 ## What it measures differently
 
@@ -87,9 +89,8 @@ string like `1.0.0-nightly.9588+4d1d5f129` while the project's real releases are
 running this on the same day can get different builds, and did: a verification run on another machine
 reported `1.0.0-nightly.9684+11e1505cd` against this one's `...9588+4d1d5f129`.
 
-The measured numbers held across both, which is the useful part. But the guide now labels the row
-`Lightpanda nightly` rather than a version number, because a version number here would imply a
-reproducibility this one row does not have.
+The measured numbers held across both. The guide labels the row `Lightpanda nightly` rather than
+a version number for that reason.
 
 ## mcp-token-cost.mjs
 
@@ -106,16 +107,11 @@ node mcp-token-cost.mjs
 wire cost is identical. The snapshot tokenized to 10x to 12x the evaluation for the same
 records, because it describes every element whether the caller needed it or not.
 
-`out-mcp-token-cost.txt` holds two runs at the pinned versions above. books.toscrape.com, a
-static sandbox, gave 7,719 snapshot tokens against 641 for the evaluation on both, exactly the
-guide's figures. Hacker News gave 13,587 against 1,349, where the guide first printed 13,564
-against 1,342: its front page is live, so that pair moves with the day's stories and yours will
-differ. The ratio held, 12.0 and 10.1. The versions are pinned because the snapshot format is the
+`results/out-mcp-token-cost.txt` holds two runs at the pinned versions above. books.toscrape.com,
+a static sandbox, gave 7,719 snapshot tokens against 641 for the evaluation on both. Hacker News
+gave 13,587 against 1,349; its front page is live, so that pair moves with the day's stories and
+yours will differ. The ratio held, 12.0 and 10.1. The versions are pinned because the snapshot format is the
 thing being measured, and a different `@playwright/mcp` can serialise the same page differently.
-
-This script used to hardcode its Chrome binary and profile directory under `/tmp/gl`, a scratch
-path that no longer exists, so it crashed on every clean clone. It now resolves Chrome through
-`lib/paths.js` like everything else.
 
 Two things this gets right that are easy to get wrong. The extractor is **per host**, so the
 comparison runs against a real extraction rather than an empty array from a selector that
@@ -137,13 +133,8 @@ browser costs about 410 MB each. The formula `431 + 213 * (n - 1)` predicts the 
 16-context figure within 1%. Separate browsers finish faster because they do not contend
 on one browser process, and cost roughly 1.8x the memory and 2.6x the CPU to do it.
 
-`out-concurrency.txt` holds the run these figures come from, taken from a clean clone after
-the `lib/serve.js` fix. The guide previously quoted a 397 MB first context and a 2,134 ms
-16-way wall time from an earlier run whose fixture is not in this repo, so those numbers were
-not reproducible from it. Memory, process counts and CPU came back close on the new run
-(3,650 MB against 3,645, 160 processes against 160, 11.13 s against 11.13). Wall time did
-not, and is the figure to trust least here: it moved from 2,134 ms to 1,208 ms and depends
-on what else the machine is doing.
+`results/out-concurrency.txt` holds the run these figures come from. Wall time is the figure
+to trust least, because it depends on what else the machine is doing.
 
 ## isolation-probe.mjs and canvas-verify.mjs
 
@@ -177,10 +168,9 @@ One evaluation at `domcontentloaded` finds 5 of 35. Waiting gets 10, clicking 15
 shadow roots 20. Each iframe needs its own evaluation, and the two iframes hold 5 each, so page
 script doing everything it can reaches 30 of 35: `reachableWalkingOpenShadowInEveryFrame`.
 
-The probe used to print only `reachableAcrossAllFrames`, which is 25, because it enumerated each
-frame with a plain `querySelectorAll` and so missed the 5 records behind the main frame's open
-shadow host. That was the probe under-reporting, not a different result: it now counts each frame
-both ways and prints 25 and 30 side by side. The guide states 30.
+The probe prints two totals. `reachableAcrossAllFrames` is 25, because a plain `querySelectorAll`
+misses the 5 records behind the main frame's open shadow host. `reachableWalkingOpenShadowInEveryFrame`
+is 30, the figure the guide states.
 
 The closed shadow root's 5 are invisible
 to page script (`shadowRoot` is `null`) and to a Playwright locator, but `DOM.getDocument` with
@@ -227,23 +217,20 @@ ITER=200 node --expose-gc leak/gc-check.mjs   # the client side
 `leak/gc-isolate.mjs` runs 200 iterations then applies one intervention per arm, because a
 drop after "forced GC plus a pause" has two possible causes:
 
-| Arm | First run | Round 1 | Round 2 |
-|---|---|---|---|
-| 1.5 s idle, no GC | -270 MB | -201 MB | -295 MB |
-| forced client GC, no wait | -113 MB | -96 MB | -110 MB |
-| forced client GC plus 1.5 s idle | -273 MB | -275 MB | -274 MB |
-| `HeapProfiler.collectGarbage` | -144 MB | -176 MB | -152 MB |
+| Arm | Round 1 | Round 2 |
+|---|---|---|
+| 1.5 s idle, no GC | -201 MB | -295 MB |
+| forced client GC, no wait | -96 MB | -110 MB |
+| forced client GC plus 1.5 s idle | -275 MB | -274 MB |
+| `HeapProfiler.collectGarbage` | -176 MB | -152 MB |
 
-Rounds 1 and 2 are in `out-gc-isolate.txt`; the first run was not archived. Waiting beat both
-explicit collections on every run, which is the finding the guide rests on, though in round 1
-only by 25 MB over `HeapProfiler`. Idle alone is the noisiest arm, 201 to 295 MB, while GC plus
-idle landed within 2 MB on all three runs.
+Both rounds are in `results/out-gc-isolate.txt`. Waiting beat both explicit collections on
+every run, which is the finding the guide rests on, though in round 1 only by 25 MB over
+`HeapProfiler`. Idle alone is the noisiest arm, 201 to 295 MB, while GC plus idle landed within
+1 MB of itself. Whether a client GC adds anything to the pause is inside the idle arm's own
+noise. A browser sampled mid-loop read 32% and 57% above its settled size.
 
-An earlier version of this section said adding a client GC to the wait "changed nothing"
-(-273 against -270). That was one run. Across three, whether the GC adds anything to the pause
-is inside the idle arm's own noise, so the claim is withdrawn rather than restated. The same
-goes for "over-reports by about a third": a browser sampled mid-loop read 32% and 57% above its
-settled size on the two archived rounds. `leak/gc-check.mjs` covers the client side: Node RSS grew 147 to 190 MB over 200
+`leak/gc-check.mjs` covers the client side: Node RSS grew 147 to 190 MB over 200
 navigations and a forced GC moved it 0.2 MB, while `heapUsed` stayed flat and reclaimed
 normally, so that growth is allocator high-water rather than retention that keeps climbing.
 
@@ -271,7 +258,7 @@ measured 636 MB (634-641) against Puppeteer's 634 MB (631-638), CPU 1.70 against
 10 processes each. A 2 MB difference on a 635 MB browser, with overlapping ranges.
 
 **One thing the light fixture hid.** Puppeteer's walk messages scaled with page size even
-though the walk reads a fixed 20 cards. `selector-cost.mjs` splits the cause out:
+though the walk reads a fixed 20 cards. `heavy/selector-cost.mjs` splits the cause out:
 
 | Cards on page | `page.$$()` messages | Playwright locator | Reading 20 |
 |---|---|---|---|
@@ -283,9 +270,9 @@ though the walk reads a fixed 20 cards. `selector-cost.mjs` splits the cause out
 match or not. A Playwright locator stays lazy and costs three at any size. Reading is flat in
 both. At 20 cards this looks like a modest constant; at 600 it is 1,832 against 3.
 
-## Between-run variance, and why the guide now states a range
+## Between-run variance
 
-Browser memory is the least stable number this harness produces. `out-bench-3runs.txt` holds
+Browser memory is the least stable number this harness produces. `results/out-bench-3runs.txt` holds
 three independent five-repeat runs, and two more come from the captures taken for the guide's
 figures:
 
@@ -300,15 +287,11 @@ Lightpanda   10, 10, 10, 10, 10               9.6-10.0
 
 Playwright stayed inside an 11 MB band across all five runs. Every other Chromium client landed
 about 90 MB above its usual figure at least once, and which one does it changes between runs.
-After three runs it looked like Playwright and Selenium were both stable, which was over-fitting
-to three samples: the fourth run put Selenium at 510 MB. Nothing here identifies the cause and no
-claim is made about it.
+Nothing here identifies the cause and no claim is made about it.
 
 Four of the six client pairs overlap outright. The two that do not, Playwright against Selenium
-and Playwright against BiDi, miss by 1 MB and 9 MB against bands up to 108 wide. An earlier
-version of this file said the variance inside a single client is larger than the gap between
-clients: true of Puppeteer, false of Playwright, whose 11 MB band sits well inside the 81 MB
-spread between client medians. Missing by 1 MB is an edge artifact, not a separation.
+and Playwright against BiDi, miss by 1 MB and 9 MB against bands up to 108 wide. Missing by 1 MB
+is an edge artifact, not a separation.
 
 Walk and CPU are steadier than memory, but only one of them ranks anything. Across the same
 five runs walk moved 9 to 17 percent and CPU 5 to 12:
@@ -323,12 +306,12 @@ Selenium    170, 170, 172, 158, 162      158-172     1.65, 1.58, 1.60, 1.47, 1.4
 
 Walk separates the clients cleanly: no two bands overlap, and the nearest pair is 9 ms apart.
 CPU does not. Three of the six pairs overlap outright, and the two closest misses, raw BiDi
-against Puppeteer and Playwright against Selenium, are 0.02 s each. An earlier version of this
-section said the clients "do not overlap at all", which is true of walk and false of CPU.
+against Puppeteer and Playwright against Selenium, are 0.02 s each. Across all five runs the four
+Chromium clients' browser memory spans 416 MB to 532 MB, which is the range the guide states.
 
-An earlier draft of the guide said the four Chromium rows land between 430 MB and 446 MB. That
-was one run's medians presented as the general result, and it is not reproducible: five runs
-span 416 MB to 532 MB.
+Import cost moves too. `results/out-bench-3runs.txt` records Selenium's at 10 MB, while every
+clean clone measured since has read about 6.8 MB (`results/out-clean-clone.txt`, whose CPU and
+browser columns are inflated by a busy machine and mean nothing). The guide states 7 to 80 MB.
 
 ## gl-useragent-currency.mjs — is the profile's browser version current?
 
@@ -354,11 +337,6 @@ Every profile is 2 majors behind the browser this harness drives.
 `/docs/api-reference/profile/get-latest-useragent`, moves them forward. Creation and currency
 are separate steps, the same shape as canvas mode and the fingerprint refresh, which is why the
 guide describes provisioning as a short sequence rather than a single call.
-
-The first version of this probe parsed the local version with `/Chrome\/(\d+)/`, which does not
-match `Google Chrome for Testing 153.0.8010.47`. The local major came back `undefined` and the
-verdict line printed the opposite of the data sitting above it. Worth recording: the table was
-right and the conclusion was wrong, which is the failure mode a summary line invites.
 
 ## gl-exit-ip.mjs — what the default exit actually is
 
@@ -388,9 +366,6 @@ variation is real and the classification is datacenter, which is the reason the 
 exists rather than an argument against it. Measuring a mobile or residential exit needs traffic
 on the account, and the dev token used here has zero bytes on all four classes, so that half is
 described from `src/gologin-api.js` rather than measured.
-
-One session in six returned a `503` on connect and the next run was clean, so it is recorded here
-and not in the guide. One observation is not a finding.
 
 ## creepjs-checks.mjs — the same detection probe on local and remote
 
@@ -426,8 +401,7 @@ differs by its height.
 ## cdc-properties.mjs — the chromedriver tell, counted
 
 The guide says chromedriver injects seven `cdc_` properties onto `window` where a plain CDP
-connect leaves none, and that the string is stable across versions. None of that had a script
-behind it until now:
+connect leaves none, and that the string is stable across versions:
 
 ```bash
 node cdc-properties.mjs
@@ -447,9 +421,7 @@ knowing the suffix. The suffix itself is a build constant, not a per-session val
 
 Checked against every chromedriver on the reference machine, `strings` finds the identical
 `cdc_adoQpoasnfa76pfcZLmcfl` in 131.0.6778.264, 133.0.6943.141, 134.0.6998.88, 134.0.6998.165,
-135.0.7049.95, 138.0.7204.94 and 153.0.8010.47. An earlier draft of the guide said "120, 131 and
-153"; 120 was never present here and was never checked, so the guide now states the range that
-was.
+135.0.7049.95, 138.0.7204.94 and 153.0.8010.47.
 
 ## runtime-enable-tell.mjs — which messages are themselves a tell
 
@@ -476,12 +448,7 @@ started yourself. The guide reports that behaviour; the source explains it.
 
 `src/gologin-api.js` in the SDK exposes `refreshProfilesFingerprint()`, which PATCHes
 `/browser/fingerprints`, and it is documented at
-`/docs/api-reference/profile/refresh-profile-fingerprint`.
-
-An earlier version of this file called the endpoint undocumented. That was wrong: one docs page
-had been read and the conclusion generalised to all 213 of them. The measurement below stands,
-the claim about the documentation did not. The guide originally told readers to hand-patch `canvas.mode` on each
-profile, which is the worse path when a documented one exists:
+`/docs/api-reference/profile/refresh-profile-fingerprint`:
 
 ```bash
 GL_TOKEN=... node gl-fingerprint-refresh.mjs
@@ -503,10 +470,8 @@ one shared value while declaring Windows 11, and `screen.width` is readable by a
 refresh call gives three distinct, platform-plausible values. It does not flip `canvas.mode`, so
 the two steps are complementary rather than redundant.
 
-A first reading of this looked like the host's own resolution leaking through. It is not:
-`getOsAdvanced()` in `src/utils/common.js` returns only `{os, osSpec}`, and the SDK sends no screen
-data at creation, so the value is server-side. Checking the source is what caught the wrong
-mechanism before it was written down.
+The shared resolution is set server-side, not leaked from the host: `getOsAdvanced()` in
+`src/utils/common.js` returns only `{os, osSpec}`, and the SDK sends no screen data at creation.
 
 ## gl-fingerprint.mjs — does a remote profile actually change identity?
 
@@ -536,16 +501,13 @@ blocked.
 
 ## gl-session-cost.mjs — what an open session costs, and how a refusal looks
 
-Two claims in the guide had nothing behind them. The first was that four open sessions cost
-97.9 MB of client RSS; no script measured client memory. The second was that the WebSocket
-upgrade is refused with a `400`; `gl-session-release.mjs` only ever probed the plain GET path,
-which answers `403`, so no `400` was ever observed. This script opens sessions until the
-account ceiling refuses one, samples client RSS after each, and then asks for one more over
-both paths so the two codes can be compared side by side. Run it with
+This opens cloud sessions until the account ceiling refuses one, samples client RSS after
+each, and then asks for one more over both a plain GET and a WebSocket upgrade, because the two
+paths refuse differently. Run it with
 `GL_TOKEN=... node --expose-gc gl-session-cost.mjs` (the GC flag makes the RSS samples
 comparable).
 
-Three runs, kept in `out-gl-session-cost.txt` and `out-gl-session-cost-2.txt`:
+Three runs, kept in `results/out-gl-session-cost.txt`:
 
 ```text
 RUN   BASELINE   1 SESSION   2         3         4         DELTA AT 4
@@ -556,10 +518,7 @@ RUN   BASELINE   1 SESSION   2         3         4         DELTA AT 4
 
 Holding four sessions costs no measurable client memory. The largest delta was 3.0 MB and two
 runs finished *below* their own baseline, because a garbage collection during the run freed
-more than the sessions ever held. No local browser process starts at any point. The guide's
-97.9 MB was wrong in the direction that understated the case: the whole point of moving the
-browser off the machine is that the client keeps almost nothing, and 97.9 MB suggested
-otherwise.
+more than the sessions ever held. No local browser process starts at any point.
 
 The refusal differs by path, and did so on all three runs:
 
@@ -568,63 +527,19 @@ plain GET          403   X-Error-Reason: {"statusCode":403,"message":"You've rea
 WebSocket upgrade  503   no X-Error-Reason, no body
 ```
 
-So the guide's `400` was wrong, and the code a retry loop actually sees depends on how it
-connects. A client using `connectOverCDP` gets the `503` with nothing to parse, which is why
+The code a retry loop actually sees depends on how it connects. A client using `connectOverCDP` gets the `503` with nothing to parse, which is why
 the preflight GET is worth doing before a connect rather than after a failure.
-
-This also revises a note in the section below. `gl-session-release.mjs` recorded one `503` on
-connect in six sessions and treated it as a transient, on the grounds that one observation is
-not a finding. That was the right call at the time, but `503` is now the observed refusal code
-on the WebSocket path across three runs, so that session was most likely the ceiling rather
-than noise.
-
-## out-fig1.txt — the run behind the guide's cost table, as text
-
-The guide's main table (load cost, processes, CPU, walk and message count per client) comes from
-a single `REPEATS=5` run captured as a terminal screenshot and published as figure 1. That run was
-never saved as text, so the table's numbers existed only as pixels in an image that lives with
-the article, not in this repo. `151.5 MB`, `86.9 MB` and `81.1 MB` could not be found in any file
-here, and neither could most of the table.
-
-`out-fig1.txt` is that capture transcribed. It was checked value by value against the image
-afterwards: 45 values, all matching. A transcription is weaker evidence than a saved run, and it
-is labelled as one; what it guarantees is that the guide's cost table can be checked against
-text in this repo rather than against an image elsewhere.
-
-## out-clean-clone.txt — why the guide says 7 MB and this repo's main run says 10
-
-`out-bench-3runs.txt` records Selenium's import at 10 MB. Every clean clone of the published
-repo measured since has read 6.8 MB, on three independent occasions: a reader verifying the
-guide, and two runs of my own from fresh checkouts. Playwright's import reaches 80.7 MB in the
-three-run file. So the honest span is about 7 to 81 MB, and the guide states 7 to 80.
-
-`out-clean-clone.txt` is the evidence for the low end. It is one `REPEATS=1` run on a busy
-machine, so its CPU and browser columns are inflated and prove nothing; it is kept for the
-IMPORT column alone. What changed between the shipped run and the clean clones is not
-established here. Import cost is the one figure in the harness measured before any browser
-exists, so it is the most sensitive to the state of `node_modules` and the least interesting
-to chase.
-
-## Why two GoLogin probes used to need profile ids you had no way to get
-
-`gl-session-release.mjs` read `process.env.GL_PROFILES.split(',')` while its documented command set
-only `GL_TOKEN`, so following the README exactly produced `TypeError: Cannot read properties of
-undefined` before anything ran. `gl-fingerprint.mjs` was documented with `GL_PROFILES=id1,id2,id3`
-but nothing said where a reader gets three profile ids. The newer GoLogin probes create their own
-profiles and delete them afterwards; these two now do the same when `GL_PROFILES` is unset, and
-delete only the profiles they created, including when a run fails part-way.
 
 ## gl-remote-latency.mjs — what the endpoint actually costs in latency
 
-An earlier draft of the guide quoted four remote-latency figures with no probe behind them. This
-script is that probe. It creates one profile, connects with `playwright-core` over
+This creates one profile, connects with `playwright-core` over
 `connectOverCDP`, and on each repeat measures the CDP round trip (`Browser.getVersion`, eleven
 samples, median), the connect, the navigation, a 40-read locator walk and the same read collapsed
 into one evaluation. The walk mirrors `bench.mjs`: 20 cards, two fields each. Run it with
 `GL_TOKEN=... node gl-remote-latency.mjs`.
 
-Nine runs across two independent sessions, on books.toscrape.com, kept in `out-gl-latency.txt`
-and `out-gl-latency-2.txt`:
+Nine runs across two independent sessions, on books.toscrape.com, kept in
+`results/out-gl-latency.txt`:
 
 ```text
 METRIC                       MEDIAN      MIN-MAX      n
@@ -639,13 +554,6 @@ The walk costs 249 ms per read against a 236 ms round trip, so each locator read
 trip and the remote walk is the round-trip thesis restated at distance. Collapsing it into one
 evaluation is a factor of 21.
 
-The four figures the guide used to carry were wrong, and three of them were wrong in the
-direction that flatters nobody: 270 ms against a measured 227-248, an 11,799 ms walk against
-9,283-10,135, and a 5,804 ms cold connect against 5,380-5,637. The fourth, 616 ms, was presented
-as the counterpart to the cold connect and understates it: a reconnect measured 1,517 to 1,803 ms.
-Only the collapsed read, quoted at 527 ms, fell inside its measured band. The guide now states
-the medians above.
-
 Two caveats. The local 64 ms the guide compares against comes from `latency-table.txt` on the
 local fixture, while the remote walk runs on books.toscrape.com, so the pages differ even though
 the read shape does not; the comparison is of round-trip cost, which is what dominates both.
@@ -654,9 +562,8 @@ product.
 
 ## gl-session-release.mjs — does closing the client free the parallel slot?
 
-This probe exists because an earlier draft asserted that closing the client did not reliably
-release a session. That claim was never measured: every other script called
-`DELETE /browser/{id}/web` after closing, so the release path was never observed in isolation.
+Whether closing the client alone releases a parallel slot, with no explicit stop call. The other
+probes stop their sessions explicitly, so this is the one that observes release in isolation.
 
 The test fills the parallel-session ceiling, then releases exactly one session by client close
 alone, with no stop call, and preflights the freed slot on a timer:
@@ -675,8 +582,7 @@ GL_TOKEN=... node gl-session-release.mjs   # creates 6 default profiles, deletes
 
 The fifth connect is refused with `403` and `X-Error-Reason: You've reached max parallel clo…`,
 which confirms the ceiling is real and that the preflight can detect a full account. Closing one
-client then frees the slot immediately, and it stays free. The original claim was wrong, and the
-guide now states the measured behaviour. Explicit deletion remains useful for removing stored
+client then frees the slot immediately, and it stays free. Explicit deletion remains useful for removing stored
 profiles, which is a separate concern from releasing a running session.
 
 ## local-patch-limit.mjs — where local patching actually stops
@@ -703,15 +609,10 @@ headless and headful, and moved only when the engine changed. Those are set by t
 stack below the JavaScript VM, so no in-page hook alters them, and `ja3-stability.mjs` shows
 JA3 cannot be used to check your work either.
 
-## make-latency-table.mjs — why the latency table is generated, not written
+## make-latency-table.mjs — the latency table is generated, not written
 
-`latency-table.txt` used to be assembled by hand from the three RTT runs, and its 0 ms column did
-not match `out-rtt0.txt`: it showed Playwright at 76 ms where the run file says 64, Puppeteer at
-72 where the file says 86, Selenium at 177 against 166, and the BiDi client at 54 against 52. The
-20 ms and 60 ms columns were correct. Nobody could have reproduced that 0 ms column from anything
-shipped here.
-
-It is now derived from the three run files, so the figure and the evidence cannot drift apart:
+`latency-table.txt` is derived from the three bench runs in `results/`, so the figure and its
+evidence cannot drift apart, and `verify-all.sh` fails if the committed copy ever differs:
 
 ```bash
 node make-latency-table.mjs
@@ -751,7 +652,7 @@ proxy, so an in-harness reading would show only the selenium delta and undercoun
 
 ## lp-vs-chrome.mjs — does Lightpanda build the same DOM?
 
-Lightpanda's headline is 10 MB against Chromium's 430. The question that decides whether that is
+Lightpanda's headline is 10 MB against Chromium's 416 to 532. The question that decides whether that is
 usable is whether it renders the same page. This drives the same three sites through both
 engines in one session, three repeats each, and compares node counts:
 
@@ -769,15 +670,9 @@ One of three matches Chrome node for node. The other two diverge in opposite dir
 Lightpanda under-renders angular.dev and over-renders vuejs.org, so the difference is a
 different DOM rather than simply an unfinished one.
 
-This result changed, and the change is worth recording. An earlier single sample read
-angular.dev at 385 and was dismissed as noise after three repeats in one session returned 485.
-Four consecutive repeats now return 385 with Chrome steady at 485, so 385 is the current stable
-result and the earlier dismissal has expired. Either the page or the engine moved between the
-two sessions and this probe cannot say which.
-
-The rule that produced the original caution still holds, and it is what caught the reversal:
-anything that would print an unflattering number about a tool gets repeated before it is
-written down, and repeated again before it is trusted months later.
+angular.dev has read both 485 and 385 for Lightpanda on different days, with Chrome steady at
+485, so treat that row as moving. The page or the engine changes between runs, and this probe
+cannot say which. Repeat it before quoting it.
 
 ## tls-probe.mjs and ja3-stability.mjs — the layer below the browser
 
@@ -815,9 +710,9 @@ Apple M3, eight cores, 16 GB RAM, macOS 26.6.2, Node v25.9.0, Google Chrome for 
 153.0.8010.47 with matching chromedriver, playwright-core 1.63.0, puppeteer-core 25.11.0,
 selenium-webdriver 4.49.0, cypress 16.1.0, and Lightpanda 1.0.0-nightly.
 
-Raw output for all three latency settings is in `out-rtt0.txt`, `out-rtt20.txt`, and
-`out-rtt60.txt`.
+Raw output for every run the guide quotes is in `results/`.
 
 ## Overrides
 
-`CHROME_PATH` and `CHROMEDRIVER_PATH` point the harness at binaries you already have.
+`CHROME_PATH`, `CHROMEDRIVER_PATH` and `LIGHTPANDA_PATH` point the harness at binaries you
+already have.

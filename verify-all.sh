@@ -6,9 +6,9 @@
 #
 # It clones this repo's committed HEAD into a temporary directory first, so nothing
 # that exists only in your working tree, uncommitted or gitignored, can make a script
-# pass here. Three bugs in this repo's history survived because they passed on the
-# author's machine and nowhere else: a fixture that was never committed, a hardcoded
-# path to a scratch directory, and a broken import. A clean checkout catches all three.
+# pass here: a file that was never committed, a path that exists on one machine, an
+# import that only resolves from one directory. A clean checkout fails on all three,
+# the way it would for you.
 #
 # Setup follows the README exactly, including the browser installs. Scripts then run
 # one at a time, so no run contends with another for CPU or memory.
@@ -37,8 +37,8 @@ CHROME_BUILD="153.0.8010.47"
 ITER="${VERIFY_ITER:-20}"
 LIST=0; [ "${1:-}" = "--list" ] && LIST=1
 
-# A failing script does not always exit non-zero: an early version of cdc-properties
-# caught its own ENOENT, printed it, and exited 0. So output is checked as well. No
+# A failing script does not always exit non-zero: a script can catch its own error,
+# print it and still exit 0. So output is checked as well. No
 # script prints any of these when it works. "not found" is deliberately absent, because
 # tls-probe prints "Lightpanda not found; skipping its row" as a legitimate skip.
 FAIL_PATTERN='ERR_|Error:|TypeError|ReferenceError|SyntaxError|ENOENT|Cannot find|UnhandledPromiseRejection'

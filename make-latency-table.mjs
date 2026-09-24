@@ -1,6 +1,6 @@
-// latency-table.txt was assembled by hand and its 0 ms column did not match
-// out-rtt0.txt, so no reader could reproduce it. This derives the whole table
-// from the three shipped run files instead, so the figure and the evidence agree.
+// Derives latency-table.txt from the three bench runs in results/, so the table
+// cannot drift from its evidence. verify-all.sh regenerates it and fails if the
+// committed copy differs by a byte.
 import fs from 'node:fs';
 
 const CLIENTS = [
@@ -32,9 +32,9 @@ const parse = (file, hasCpu) => {
   return out;
 };
 
-const r0 = parse('out-rtt0.txt', true);
-const r20 = parse('out-rtt20.txt', false);
-const r60 = parse('out-rtt60.txt', false);
+const r0 = parse('results/out-rtt0.txt', true);
+const r20 = parse('results/out-rtt20.txt', false);
+const r60 = parse('results/out-rtt60.txt', false);
 
 const pad = (s, n) => String(s).padEnd(n);
 const rp = (s, n) => String(s).padStart(n);

@@ -1,3 +1,28 @@
+gl-session-cost.mjs, three runs from a clean checkout.
+
+=== run 1 ===
+baseline client RSS 170 MB, node v25.9.0
+
+SESSIONS  CLIENT RSS   DELTA     local browser procs
+-----------------------------------------------------
+    1       172.3 MB     2.3 MB   0
+    2       172.5 MB     2.5 MB   0
+    3       172.8 MB     2.8 MB   0
+    4         173 MB       3 MB   0
+
+session 5 refused by connectOverCDP: browserType.connectOverCDP: WebSocket error: wss://cloudbrowser.gologin.com/conn
+
+sessions held: 4, refused at 5
+
+refusal on one more session, same URL, two paths:
+  plain GET          status 403   X-Error-Reason: {"statusCode":403,"message":"You've reached max parallel cloud launche
+  WebSocket upgrade  status 503   X-Error-Reason: (none)
+
+  same code on both paths: false
+
+cleaned up 6 profiles
+
+
 === run 2 ===
 baseline client RSS 168.6 MB, node v25.9.0
     1       170.3 MB     1.7 MB   0

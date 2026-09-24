@@ -7,3 +7,5 @@ node_modules/
 # never commit credentials; every probe reads GL_TOKEN from the environment
 .env
 .env.*
+# written by bench.mjs on every run; the evidence the guide cites is in results/
+bench-results.json

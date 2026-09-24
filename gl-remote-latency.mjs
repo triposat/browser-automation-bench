@@ -1,7 +1,6 @@
-// The guide quotes four remote-latency figures: a median CDP round trip to the
-// endpoint, a locator walk run remotely, the same read collapsed into one
-// evaluation, and a cold connect. None of them had a probe behind them, so this
-// is that probe. Every number below is a median of REPEATS runs, reported with
+// Measures the remote-latency figures the guide quotes: the median CDP round
+// trip to the endpoint, a locator walk run remotely, the same read collapsed
+// into one evaluation, and the connect. Every number below is a median of REPEATS runs, reported with
 // its min and max, because a single sample of a network measurement says very
 // little. The walk mirrors bench.mjs: 20 cards, two fields each, 40 reads.
 //

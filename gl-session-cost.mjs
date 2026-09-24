@@ -1,12 +1,7 @@
-// Two claims in the guide had no probe behind them:
-//   1. "Four open sessions cost 97.9 MB of client RSS and started no local
-//      browser process."
-//   2. "the WebSocket upgrade returns only a 400, while a plain GET returns
-//      the reason in X-Error-Reason."
-// gl-session-release.mjs only ever recorded a 403, and only on the GET path,
-// so the 400 was never observed. This opens sessions until the account ceiling
-// refuses one, measures client RSS as it goes, and then asks for one more over
-// BOTH paths so the two status codes can be compared directly.
+// What an open cloud session costs the client, and how the account ceiling
+// refuses one more. This opens sessions until the ceiling refuses one, samples
+// client RSS after each, then asks for one more over both a plain GET and a
+// WebSocket upgrade, because the two paths refuse with different status codes.
 //
 //   GL_TOKEN=... node gl-session-cost.mjs
 //
