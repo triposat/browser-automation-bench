@@ -1,8 +1,9 @@
 // Measures the remote-latency figures the guide quotes: the median CDP round
 // trip to the endpoint, a locator walk run remotely, the same read collapsed
-// into one evaluation, and the connect. Every number below is a median of REPEATS runs, reported with
-// its min and max, because a single sample of a network measurement says very
-// little. The walk mirrors bench.mjs: 20 cards, two fields each, 40 reads.
+// into one evaluation, and the connect. Each row of the summary table is the
+// median of REPEATS runs, with its min and max, because a single sample of a
+// network measurement says very little. The walk mirrors bench.mjs: 20 cards,
+// two fields each, 40 reads.
 //
 //   GL_TOKEN=... node gl-remote-latency.mjs
 //

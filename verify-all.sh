@@ -38,9 +38,9 @@ ITER="${VERIFY_ITER:-20}"
 LIST=0; [ "${1:-}" = "--list" ] && LIST=1
 
 # A failing script does not always exit non-zero: a script can catch its own error,
-# print it and still exit 0. So output is checked as well. No
-# script prints any of these when it works. "not found" is deliberately absent, because
-# tls-probe prints "Lightpanda not found; skipping its row" as a legitimate skip.
+# print it and still exit 0. So output is checked as well. No script prints any of
+# these when it works. "not found" is deliberately absent, because tls-probe prints
+# "Lightpanda not found; skipping its row" as a legitimate skip.
 FAIL_PATTERN='ERR_|Error:|TypeError|ReferenceError|SyntaxError|ENOENT|Cannot find|UnhandledPromiseRejection'
 
 # ---------------------------------------------------------------- what can run here
