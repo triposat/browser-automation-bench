@@ -4,7 +4,24 @@
 import crypto from 'node:crypto';
 const { chromium } = await import('playwright-core');
 const TOKEN = process.env.GL_TOKEN;
-const PROFILES = process.env.GL_PROFILES.split(',');
+// Bring your own profiles with GL_PROFILES=id1,id2,..., or leave it unset and the
+// probe creates default profiles through the API and deletes them when it ends,
+// including when it fails part-way.
+const API = 'https://api.gologin.com';
+const AUTH = { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' };
+if (!TOKEN) { console.error('set GL_TOKEN'); process.exit(1); }
+const created = [];
+const provision = async (n, tag) => {
+  for (let i = 0; i < n; i++) {
+    const r = await fetch(`${API}/browser/quick`, { method: 'POST', headers: AUTH,
+      body: JSON.stringify({ os: 'win', osSpec: 'win11', name: `${tag}-${i}` }) }).then((x) => x.json()).catch(() => null);
+    if (r?.id) created.push(r.id);
+  }
+  return created;
+};
+const cleanup = async () => { for (const id of created) await fetch(`${API}/browser/${id}`, { method: 'DELETE', headers: AUTH }).catch(() => {}); };
+const PROFILES = (process.env.GL_PROFILES || '').split(',').filter(Boolean);
+if (!PROFILES.length) PROFILES.push(...await provision(3, 'fp'));
 
 const FP = `(() => {
   const c=document.createElement('canvas'); c.width=280; c.height=60;
@@ -27,6 +44,7 @@ const FP = `(() => {
 const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex').slice(0, 16);
 
 const rows = [];
+try {
 for (const p of PROFILES) {
   const url = `wss://cloudbrowser.gologin.com/connect?token=${TOKEN}&profile=${p}`;
   const pre = await fetch(url.replace('wss:', 'https:'));
@@ -53,4 +71,5 @@ console.log(JSON.stringify({ profilesProbed: rows.filter((r) => r.canvasSha).len
   distinctCanvasHashes: hashes.size,
   distinctHw: new Set(rows.filter((r)=>r.hw).map((r)=>r.hw)).size,
   distinctIps: new Set(rows.filter((r)=>r.ip).map((r)=>r.ip)).size }));
+} finally { await cleanup(); }
 process.exit(0);

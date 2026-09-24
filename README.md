@@ -496,7 +496,8 @@ runs the same canvas probe against separate remote profiles, so the guide's reco
 measured rather than asserted.
 
 ```bash
-GL_TOKEN=... GL_PROFILES=id1,id2,id3 node gl-fingerprint.mjs
+GL_TOKEN=... node gl-fingerprint.mjs                      # creates and deletes 3 default profiles
+GL_TOKEN=... GL_PROFILES=id1,id2,id3 node gl-fingerprint.mjs  # or probe profiles you already have
 ```
 
 Three profiles created through the API varied their exit IP, WebGL renderer string, and
@@ -585,6 +586,15 @@ established here. Import cost is the one figure in the harness measured before a
 exists, so it is the most sensitive to the state of `node_modules` and the least interesting
 to chase.
 
+## Why two GoLogin probes used to need profile ids you had no way to get
+
+`gl-session-release.mjs` read `process.env.GL_PROFILES.split(',')` while its documented command set
+only `GL_TOKEN`, so following the README exactly produced `TypeError: Cannot read properties of
+undefined` before anything ran. `gl-fingerprint.mjs` was documented with `GL_PROFILES=id1,id2,id3`
+but nothing said where a reader gets three profile ids. The newer GoLogin probes create their own
+profiles and delete them afterwards; these two now do the same when `GL_PROFILES` is unset, and
+delete only the profiles they created, including when a run fails part-way.
+
 ## gl-remote-latency.mjs — what the endpoint actually costs in latency
 
 An earlier draft of the guide quoted four remote-latency figures with no probe behind them. This
@@ -633,7 +643,8 @@ The test fills the parallel-session ceiling, then releases exactly one session b
 alone, with no stop call, and preflights the freed slot on a timer:
 
 ```bash
-GL_TOKEN=... node gl-session-release.mjs
+GL_TOKEN=... node gl-session-release.mjs   # creates 6 default profiles, deletes them on exit
+# MAX_SESSIONS=<n> if your plan allows more than 5 parallel sessions; GL_PROFILES=... to bring your own
 ```
 
 ```json
