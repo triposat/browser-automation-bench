@@ -227,10 +227,11 @@ drop after "forced GC plus a pause" has two possible causes:
 | `HeapProfiler.collectGarbage` | -176 MB | -152 MB |
 
 Both rounds are in `results/out-gc-isolate.txt`. Waiting freed more than both explicit
-collections on every run, which is the finding the guide depends on, though in round 1 only by 25
-MB over `HeapProfiler`. Idle alone is the noisiest arm, 201 to 295 MB, while GC plus idle varied
-by only 1 MB between rounds. Whether a client GC adds anything to the pause is within the idle
-arm's own noise. A browser sampled mid-loop measured 32% and 57% above its size after going idle.
+collections on every run, which is the finding the guide depends on, though in round 1 only by
+25 MB over `HeapProfiler`. Idle alone is the noisiest arm, 201 to 295 MB, while GC plus idle
+varied by only 1 MB between rounds. Whether a client GC adds anything to the pause is within the
+idle arm's own noise. A browser sampled mid-loop measured 32% and 57% above its size after going
+idle.
 
 `leak/gc-check.mjs` measures the client side: Node RSS grew 147 to 190 MB over 200
 navigations and a forced GC changed it by 0.2 MB, while `heapUsed` stayed flat and reclaimed
@@ -310,14 +311,14 @@ Selenium    170, 170, 172, 158, 162      158-172     1.65, 1.58, 1.60, 1.47, 1.4
 
 Walk time separates the clients clearly: no two ranges overlap, and the nearest pair is 9 ms
 apart. CPU time does not. Three of the six pairs overlap completely, and the two closest pairs
-that do not overlap, raw BiDi against Puppeteer and Playwright against Selenium, are 0.02 s
-apart each. Across all five runs the four
-Chromium clients' browser memory spans 416 MB to 532 MB, which is the range the guide states.
+that do not overlap, raw BiDi against Puppeteer and Playwright against Selenium, are 0.02 s apart
+each. Across all five runs the four Chromium clients' browser memory spans 416 MB to 532 MB,
+which is the range the guide states.
 
 Import cost varies too. `results/out-bench-3runs.txt` records Selenium's at 10 MB, while every
 clean clone since has measured about 6.8 MB (`results/out-clean-clone.txt`, whose CPU and browser
-columns are too high because the machine was busy, and mean nothing). The guide states 7 to 80
-MB.
+columns are too high because the machine was busy, and mean nothing). The guide states 7 to
+80 MB.
 
 ## gl-useragent-currency.mjs — is the profile's browser version current?
 
@@ -566,9 +567,8 @@ one evaluation reduces it by a factor of 21.
 Two caveats. The local 64 ms the guide compares against comes from `latency-table.txt` on the
 local fixture, while the remote walk runs on books.toscrape.com, so the pages differ even though
 the read pattern does not; the comparison is of round-trip cost, which is the largest cost in
-both.
-And every number here is one machine's distance to one endpoint on one day, not a property of the
-product.
+both. And every number here is one machine's distance to one endpoint on one day, not a property
+of the product.
 
 ## gl-session-release.mjs — does closing the client free the parallel slot?
 
