@@ -148,8 +148,8 @@ node isolation-probe.mjs
 node canvas-verify.mjs
 ```
 
-Contexts isolate storage. Neither contexts nor separate browsers isolate the machine: all
-four surfaces produced one canvas hash, with identical `hardwareConcurrency`,
+Contexts isolate storage. Neither contexts nor separate Chrome browsers isolate the machine:
+all four surfaces produced one canvas hash, with identical `hardwareConcurrency`,
 `deviceMemory`, and `platform`. Process separation buys crash containment, not identity.
 
 ## edge/ — where one evaluation stops working
@@ -475,9 +475,9 @@ The shared resolution is set server-side, not leaked from the host: `getOsAdvanc
 
 ## gl-fingerprint.mjs — does a remote profile actually change identity?
 
-The local probes prove that separate contexts and separate browsers share one identity. This
-runs the same canvas probe against separate remote profiles, so the guide's recommendation is
-measured rather than asserted.
+The local probes prove that separate contexts and separate Chrome browsers share one identity.
+This runs the same canvas probe against separate remote profiles, so the guide's recommendation
+is measured rather than asserted.
 
 ```bash
 GL_TOKEN=... node gl-fingerprint.mjs                      # creates and deletes 3 default profiles
@@ -692,8 +692,10 @@ node ja3-stability.mjs    # 3 repeats per mode, to separate signal from GREASE
 | curl | `t13d497h2_0d8feac7bc37_7395dae3b2f3` | `64a832f547be33249bf4d33e8a46c5dc` |
 
 **Headless changes nothing here.** JA4 and the HTTP/2 fingerprint are byte-identical headless
-and headful, so headless is a JavaScript-layer tell (the UA string, `navigator.webdriver`),
-not a network-layer one. Effort spent on TLS to hide headless is spent in the wrong place.
+and headful, so TLS and HTTP/2 do not reveal headless. The User-Agent does: the server receives
+`HeadlessChrome` in every request header (the `ua` column of `tls-probe.mjs`), and page script
+reads it too, along with `navigator.webdriver`. Effort spent on TLS to hide headless is spent in
+the wrong place.
 
 **JA3 is noise for Chrome.** `ja3-stability.mjs` ran three repeats of each mode and returned
 six distinct JA3 hashes from six runs, while JA4 held at one value per mode and matched across
