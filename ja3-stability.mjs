@@ -1,6 +1,6 @@
 // JA3 differed headless vs headful. That is only a headless tell if JA3 is
 // stable across repeats of the same config. Chrome sends GREASE values that
-// JA3 does not normalise and JA4 does, so test repeats before concluding.
+// JA3 does not normalize and JA4 does, so test repeats before concluding.
 import { CHROME, CHROME_ARGS } from './lib/paths.js';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';

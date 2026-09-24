@@ -111,7 +111,7 @@ records, because it describes every element whether the caller needed it or not.
 a static sandbox, gave 7,719 snapshot tokens against 641 for the evaluation on both. Hacker News
 gave 13,587 against 1,349; its front page is live, so that pair moves with the day's stories and
 yours will differ. The ratio held, 12.0 and 10.1. The versions are pinned because the snapshot format is the
-thing being measured, and a different `@playwright/mcp` can serialise the same page differently.
+thing being measured, and a different `@playwright/mcp` can serialize the same page differently.
 
 Two things this gets right that are easy to get wrong. The extractor is **per host**, so the
 comparison runs against a real extraction rather than an empty array from a selector that
@@ -266,7 +266,7 @@ though the walk reads a fixed 20 cards. `heavy/selector-cost.mjs` splits the cau
 | 200 | 629 | 3 | 240 vs 40 |
 | 600 | 1,832 | 3 | 240 vs 40 |
 
-`$$` materialises a handle per match at roughly three messages each, whether you read that
+`$$` materializes a handle per match at roughly three messages each, whether you read that
 match or not. A Playwright locator stays lazy and costs three at any size. Reading is flat in
 both. At 20 cards this looks like a modest constant; at 600 it is 1,832 against 3.
 
@@ -394,7 +394,7 @@ is `undefined` on a Blink build new enough to have it, so deleting `navigator.we
 a tell. Setting it to `false` is the only correct move.
 
 The heuristic hits on the cloud profile are `prefersLightColor`, `noWebShare` and `noTaskbar`.
-The first is a colour-scheme preference that millions of real users share. The third is the one
+The first is a color-scheme preference that millions of real users share. The third is the one
 worth setting: `screen` and `availScreen` are equal, where a desktop with a dock or taskbar
 differs by its height.
 
@@ -442,7 +442,7 @@ Both mainstream clients enable it on connect. Patchright avoids it by running sc
 isolated execution contexts instead, and patches the Playwright driver's launch flags
 (`--disable-blink-features=AutomationControlled` added, `--enable-automation` removed), which is
 exactly why its `navigator.webdriver` patch does not survive a `connectOverCDP` to a browser you
-started yourself. The guide reports that behaviour; the source explains it.
+started yourself. The guide reports that behavior; the source explains it.
 
 ## gl-fingerprint-refresh.mjs — what the fingerprint refresh actually re-rolls
 
@@ -699,7 +699,7 @@ the wrong place.
 
 **JA3 is noise for Chrome.** `ja3-stability.mjs` ran three repeats of each mode and returned
 six distinct JA3 hashes from six runs, while JA4 held at one value per mode and matched across
-modes. JA3 does not normalise the GREASE values Chrome randomises per connection. Anyone
+modes. JA3 does not normalize the GREASE values Chrome randomizes per connection. Anyone
 comparing JA3 hashes to verify a stealth setup is reading randomness.
 
 **Lightpanda's tell is below JavaScript.** Its JA4 and HTTP/2 fingerprints differ from
