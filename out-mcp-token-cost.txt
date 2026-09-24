@@ -1,0 +1,12 @@
+mcp-token-cost.mjs, two runs from a clean checkout, @playwright/mcp 0.0.82, gpt-tokenizer 4.0.0.
+books.toscrape.com is a static scraping sandbox and reproduced the guide's 7,719 and 641 exactly on
+both runs. news.ycombinator.com is a live front page, so its counts move with the day's stories and
+every reader will get their own; the ratio is the finding, not the count.
+
+run 1
+{"url":"https://books.toscrape.com/","snapshotChars":31768,"snapshotTokens":7719,"evalChars":1930,"evalTokens":641,"records":20,"ratio":12}
+{"url":"https://news.ycombinator.com/","snapshotChars":49080,"snapshotTokens":13587,"evalChars":4459,"evalTokens":1349,"records":30,"ratio":10.1}
+
+run 2
+{"url":"https://books.toscrape.com/","snapshotChars":31768,"snapshotTokens":7719,"evalChars":1930,"evalTokens":641,"records":20,"ratio":12}
+{"url":"https://news.ycombinator.com/","snapshotChars":49080,"snapshotTokens":13587,"evalChars":4459,"evalTokens":1349,"records":30,"ratio":10.1}

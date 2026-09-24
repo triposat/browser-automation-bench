@@ -1,0 +1,23 @@
+The run behind the guide's main cost table, published there as figure 1.
+
+This was never saved as text. It exists as a terminal screenshot taken in a checkout of this
+repo, so every number in the guide's cost table rested on an image that lives with the article
+and not here. What follows is transcribed from that capture, column for column, and checked
+against it after transcription. The shell prompt line is omitted; the command is below.
+
+  LIGHTPANDA_PATH=.browsers/lightpanda/lightpanda REPEATS=5 node bench.mjs
+
+browser-automation-bench   Google Chrome for Testing 153.0.8010.47   node v25.9.0   rtt=0ms   repeats=5
+darwin/arm64  8 cpus  16 GB   browser memory metric: phys_footprint
+
+TOOL       PROTOCOL           IMPORT    CLIENT  BROWSER PROCS     CPU     WALK  MSGS   EVAL  ITEMS
+--------------------------------------------------------------------------------------------------------
+Playwright CDP               76.4 MB  151.5 MB   428 MB     9  1.33 s    74 ms    46   2 ms     20
+Puppeteer  CDP               15.3 MB   86.9 MB   524 MB     9  1.32 s    77 ms   320   1 ms     20
+Selenium   WebDriver Classic  9.9 MB   81.1 MB   445 MB     8  1.47 s   162 ms    81   2 ms     20
+raw client WebDriver BiDi          -   77.9 MB   460 MB     9  1.44 s    47 ms    41   2 ms     20
+Lightpanda CDP (partial)     15.3 MB   86.9 MB    10 MB     1  0.06 s    48 ms   318   0 ms     20
+
+The browser-memory column here is one run. The guide prints the five-run range for the four
+Chromium clients instead, because out-bench-3runs.txt and two further captures show that
+column moving by up to 108 MB between runs. The other columns are quoted as they appear.

@@ -1,0 +1,16 @@
+leak/gc-isolate.mjs, all four arms, two rounds, from a clean checkout. One arm per invocation:
+  node --expose-gc leak/gc-isolate.mjs --arm=<idle-only|gc-only|gc-plus-idle|browser-gc>
+Each arm runs 200 iterations, samples the browser mid-loop (before), applies one intervention,
+and samples again (after).
+
+round 1
+{"arm":"idle-only","before":{"browserMb":822,"clientRssMb":190.3},"after":{"browserMb":621,"clientRssMb":190.6},"browserDeltaMb":-201,"clientDeltaMb":0.3}
+{"arm":"gc-only","before":{"browserMb":818,"clientRssMb":190.3},"after":{"browserMb":722,"clientRssMb":190.7},"browserDeltaMb":-96,"clientDeltaMb":0.4}
+{"arm":"gc-plus-idle","before":{"browserMb":819,"clientRssMb":190.5},"after":{"browserMb":544,"clientRssMb":190.9},"browserDeltaMb":-275,"clientDeltaMb":0.4}
+{"arm":"browser-gc","before":{"browserMb":799,"clientRssMb":191.1},"after":{"browserMb":623,"clientRssMb":191.4},"browserDeltaMb":-176,"clientDeltaMb":0.3}
+
+round 2
+{"arm":"idle-only","before":{"browserMb":813,"clientRssMb":184.4},"after":{"browserMb":518,"clientRssMb":184.8},"browserDeltaMb":-295,"clientDeltaMb":0.4}
+{"arm":"gc-only","before":{"browserMb":824,"clientRssMb":190.1},"after":{"browserMb":714,"clientRssMb":190.5},"browserDeltaMb":-110,"clientDeltaMb":0.4}
+{"arm":"gc-plus-idle","before":{"browserMb":819,"clientRssMb":190.5},"after":{"browserMb":545,"clientRssMb":191.1},"browserDeltaMb":-274,"clientDeltaMb":0.6}
+{"arm":"browser-gc","before":{"browserMb":802,"clientRssMb":171.4},"after":{"browserMb":650,"clientRssMb":171.7},"browserDeltaMb":-152,"clientDeltaMb":0.3}

@@ -79,13 +79,24 @@ stdio JSON-RPC with no model in the loop, so the numbers belong to the tool rath
 any model, and it tokenizes the payloads rather than estimating from character counts.
 
 ```bash
-npm i @playwright/mcp gpt-tokenizer
+npm i @playwright/mcp@0.0.82 gpt-tokenizer@4.0.0
 node mcp-token-cost.mjs
 ```
 
 `browser_snapshot` and a targeted `browser_evaluate` each cost three CDP messages, so the
 wire cost is identical. The snapshot tokenized to 10x to 12x the evaluation for the same
 records, because it describes every element whether the caller needed it or not.
+
+`out-mcp-token-cost.txt` holds two runs at the pinned versions above. books.toscrape.com, a
+static sandbox, gave 7,719 snapshot tokens against 641 for the evaluation on both, exactly the
+guide's figures. Hacker News gave 13,587 against 1,349, where the guide first printed 13,564
+against 1,342: its front page is live, so that pair moves with the day's stories and yours will
+differ. The ratio held, 12.0 and 10.1. The versions are pinned because the snapshot format is the
+thing being measured, and a different `@playwright/mcp` can serialise the same page differently.
+
+This script used to hardcode its Chrome binary and profile directory under `/tmp/gl`, a scratch
+path that no longer exists, so it crashed on every clean clone. It now resolves Chrome through
+`lib/paths.js` like everything else.
 
 Two things this gets right that are easy to get wrong. The extractor is **per host**, so the
 comparison runs against a real extraction rather than an empty array from a selector that
@@ -197,16 +208,23 @@ ITER=200 node --expose-gc leak/gc-check.mjs   # the client side
 `leak/gc-isolate.mjs` runs 200 iterations then applies one intervention per arm, because a
 drop after "forced GC plus a pause" has two possible causes:
 
-| Arm | Browser delta |
-|---|---|
-| 1.5 s idle, no GC | -270 MB |
-| forced client GC, no wait | -113 MB |
-| forced client GC plus 1.5 s idle | -273 MB |
-| `HeapProfiler.collectGarbage` | -144 MB |
+| Arm | First run | Round 1 | Round 2 |
+|---|---|---|---|
+| 1.5 s idle, no GC | -270 MB | -201 MB | -295 MB |
+| forced client GC, no wait | -113 MB | -96 MB | -110 MB |
+| forced client GC plus 1.5 s idle | -273 MB | -275 MB | -274 MB |
+| `HeapProfiler.collectGarbage` | -144 MB | -176 MB | -152 MB |
 
-Idle time is the cause. Adding a client GC on top of the wait changed nothing (-273 against
--270), and waiting beat both explicit collections. A browser sampled mid-loop over-reports by
-about a third. `leak/gc-check.mjs` covers the client side: Node RSS grew 147 to 190 MB over 200
+Rounds 1 and 2 are in `out-gc-isolate.txt`; the first run was not archived. Waiting beat both
+explicit collections on every run, which is the finding the guide rests on, though in round 1
+only by 25 MB over `HeapProfiler`. Idle alone is the noisiest arm, 201 to 295 MB, while GC plus
+idle landed within 2 MB on all three runs.
+
+An earlier version of this section said adding a client GC to the wait "changed nothing"
+(-273 against -270). That was one run. Across three, whether the GC adds anything to the pause
+is inside the idle arm's own noise, so the claim is withdrawn rather than restated. The same
+goes for "over-reports by about a third": a browser sampled mid-loop read 32% and 57% above its
+settled size on the two archived rounds. `leak/gc-check.mjs` covers the client side: Node RSS grew 147 to 190 MB over 200
 navigations and a forced GC moved it 0.2 MB, while `heapUsed` stayed flat and reclaimed
 normally, so that growth is allocator high-water rather than retention that keeps climbing.
 
@@ -540,6 +558,19 @@ not a finding. That was the right call at the time, but `503` is now the observe
 on the WebSocket path across three runs, so that session was most likely the ceiling rather
 than noise.
 
+## out-fig1.txt — the run behind the guide's cost table, as text
+
+The guide's main table (load cost, processes, CPU, walk and message count per client) comes from
+a single `REPEATS=5` run captured as a terminal screenshot and published as figure 1. That run was
+never saved as text, so the table's numbers existed only as pixels in an image that lives with
+the article, not in this repo. `151.5 MB`, `86.9 MB` and `81.1 MB` could not be found in any file
+here, and neither could most of the table.
+
+`out-fig1.txt` is that capture transcribed. It was checked value by value against the image
+afterwards: 45 values, all matching. A transcription is weaker evidence than a saved run, and it
+is labelled as one; what it guarantees is that the guide's cost table can be checked against
+text in this repo rather than against an image elsewhere.
+
 ## out-clean-clone.txt — why the guide says 7 MB and this repo's main run says 10
 
 `out-bench-3runs.txt` records Selenium's import at 10 MB. Every clean clone of the published
@@ -660,6 +691,13 @@ One thing to know when reading the two figures together. The walk times in `fig-
 later `bench.mjs` run than the `RTT 0ms` column here, so they differ by a few milliseconds on the
 same measurement. That is the run-to-run variance this README documents, not a contradiction, and
 the ladder's own 0 ms column is the one to compare against its 20 ms and 60 ms neighbours.
+
+Two figures the guide quotes are derived from this table rather than printed in it, so here is
+the arithmetic. At 60 ms, dividing each walk by its message count gives the cost of one message:
+raw BiDi 2,762 / 41 = 67.4 ms, Playwright 2,821 / 46 = 61.3, Selenium 5,719 / 81 = 70.6, and
+Puppeteer 16,292 / 320 = 50.9. That is the guide's "50 to 71 ms of elapsed time" per message, one
+round trip each. And Puppeteer's 60 ms walk against its 60 ms single evaluation is
+16,292 / 65 = 250.6, the "factor of 251".
 
 ## bidi-load-cost.mjs — the dash in the matrix
 
