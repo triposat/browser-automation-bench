@@ -1,9 +1,11 @@
 import { encode } from 'gpt-tokenizer';
 import { spawn } from 'node:child_process';
 import http from 'node:http';
-import fs from 'node:fs';
-const CHROME = fs.globSync('/tmp/gl/bench/.browsers/chrome/*/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing')[0];
-const chrome = spawn(CHROME, ['--headless=new','--no-first-run','--remote-debugging-port=0',`--user-data-dir=/tmp/gl/agent/tk-${Date.now()}`,'about:blank'], { stdio:['ignore','pipe','pipe'] });
+import os from 'node:os';
+import path from 'node:path';
+import { CHROME } from './lib/paths.js';
+if (!CHROME) { console.error('Chrome not found: run the @puppeteer/browsers install from the README'); process.exit(1); }
+const chrome = spawn(CHROME, ['--headless=new','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${path.join(os.tmpdir(), `tk-${Date.now()}`)}`,'about:blank'], { stdio:['ignore','pipe','pipe'] });
 const wsUrl = await new Promise((r) => { let b=''; chrome.stderr.on('data', (d)=>{ b+=d; const m=b.match(/ws:\/\/[^\s]+/); if(m) r(m[0]); }); });
 const mcp = spawn('npx', ['@playwright/mcp','--cdp-endpoint', wsUrl,'--headless'], { stdio:['pipe','pipe','pipe'] });
 let buf=''; const waiters=new Map();

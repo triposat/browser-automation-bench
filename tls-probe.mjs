@@ -2,7 +2,7 @@
 // fingerprintable before a single byte of JavaScript runs, so this asks which
 // of them automation actually changes.
 import { launchChrome } from './lib/chrome.js';
-import { CHROME, CHROME_ARGS } from './lib/paths.js';
+import { CHROME, CHROME_ARGS, LIGHTPANDA } from './lib/paths.js';
 import { spawn, execSync } from 'node:child_process';
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
 const { chromium } = await import('playwright-core');
@@ -37,9 +37,10 @@ await viaBrowser('Chrome headless + Playwright', CHROME_ARGS);
 // 2. the same binary headful, same driver
 await viaBrowser('Chrome headful + Playwright', CHROME_ARGS.filter((a) => a !== '--headless=new'));
 // 3. Lightpanda, a non-Chromium engine speaking CDP
-{
+if (!LIGHTPANDA) console.log('Lightpanda not found; skipping its row (set LIGHTPANDA_PATH or install it)');
+else {
   const port = 9701;
-  const lp = spawn('/tmp/gl/lp/bin/lightpanda', ['serve','--host','127.0.0.1','--port',String(port)], { stdio:['ignore','pipe','pipe'] });
+  const lp = spawn(LIGHTPANDA, ['serve','--host','127.0.0.1','--port',String(port)], { stdio:['ignore','pipe','pipe'] });
   await new Promise((r) => setTimeout(r, 2500));
   try {
     const puppeteer = (await import('puppeteer-core')).default;

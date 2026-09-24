@@ -25,6 +25,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { WebSocketServer, WebSocket } from 'ws';
+import { LIGHTPANDA } from './lib/paths.js';
 
 const RTT = Number(process.env.RTT || 0);
 const REPEATS = Number(process.env.REPEATS || 3);
@@ -308,8 +309,8 @@ async function runSeleniumBidi(site) {
 }
 
 async function runLightpanda(site) {
-  const LP = process.env.LIGHTPANDA_PATH || '/tmp/gl/lp/bin/lightpanda';
-  if (!fs.existsSync(LP)) return null;
+  const LP = LIGHTPANDA;
+  if (!LP) return null;
   const base = clientRssMb();
   const puppeteer = (await import('puppeteer-core')).default;
   const importCost = +(clientRssMb() - base).toFixed(1);

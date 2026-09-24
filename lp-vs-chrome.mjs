@@ -4,7 +4,8 @@ import { spawn } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 import { launchChrome } from './lib/chrome.js';
 
-const LP = process.env.LIGHTPANDA_PATH || '/tmp/gl/lp/bin/lightpanda';
+import { LIGHTPANDA as LP } from './lib/paths.js';
+if (!LP) { console.error('Lightpanda not found: set LIGHTPANDA_PATH or install it'); process.exit(1); }
 const TARGETS = [['react.dev','https://react.dev/'], ['angular.dev','https://angular.dev/'], ['vuejs.org','https://vuejs.org/']];
 const count = async (page, url) => {
   await page.goto(url, { waitUntil: 'load', timeout: 45000 });
